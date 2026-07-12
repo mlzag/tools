@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evening Reflection</title>
+<meta name="theme-color" content="#12101F">
+<meta name="description" content="A quiet evening wind-down ritual: reflect on your day and refocus on your priorities.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Reflection">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=DM+Sans:wght@400;500;700&display=swap');
+
+  :root{
+    --bg:#12101F;
+    --fg:#F5F1FF;
+    --muted:#241938;
+    --dim:#B8AECF;
+    --accent: #C94FC2;
+    --accent2: #E8D24F;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'DM Sans',sans-serif;
+    color:var(--fg);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:28px;
+    background:var(--bg);
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* ---- ambient background layers ---- */
+  .bg-patterns{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px),
+      radial-gradient(ellipse at 20% 25%, rgba(201,79,194,0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 75%, rgba(79,217,196,0.08) 0%, transparent 50%);
+    background-size: 34px 34px, auto, auto;
+  }
+  .bg-word{
+    position:fixed;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    font-family:'Unbounded',sans-serif;
+    font-weight:900;
+    font-size:min(26vw,220px);
+    letter-spacing:-0.02em;
+    color:var(--accent);
+    opacity:0.055;
+    white-space:nowrap;
+    z-index:0;pointer-events:none;
+    transition:color 0.9s ease;
+    user-select:none;
+  }
+  .float-shape{
+    position:fixed;border-radius:50%;z-index:0;pointer-events:none;
+    opacity:0.35;filter:blur(0.5px);
+    animation:drift 9s ease-in-out infinite;
+  }
+  @keyframes drift{
+    0%,100%{transform:translateY(0px);}
+    50%{transform:translateY(-16px);}
+  }
+
+  .app{max-width:480px;width:100%;position:relative;z-index:2;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;}
+  .gear{
+    background:var(--muted);border:2px solid var(--accent2);cursor:pointer;
+    color:var(--dim);font-size:16px;padding:8px 10px;line-height:1;
+    border-radius:999px;transition:transform 0.2s ease, color 0.2s ease;
+  }
+  .gear:hover{color:var(--fg);transform:rotate(25deg);}
+
+  .arc{width:100%;height:56px;position:relative;margin-bottom:2px;}
+  .arc svg{width:100%;height:100%;display:block;}
+  .orb{transition:cx 0.8s cubic-bezier(.4,0,.2,1), cy 0.8s cubic-bezier(.4,0,.2,1), fill 0.6s ease;}
+
+  .step-label{
+    text-align:center;font-family:'Unbounded',sans-serif;font-weight:700;
+    font-size:11px;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--dim);margin-bottom:20px;
+  }
+
+  .card{
+    background:rgba(36,25,56,0.72);
+    backdrop-filter:blur(8px);
+    border:3px solid var(--accent);
+    border-radius:26px;
+    padding:32px 26px;
+    position:relative;
+    transform:rotate(-0.4deg);
+    box-shadow:
+      0 0 30px rgba(201,79,194,0.18),
+      5px 5px 0 var(--accent2),
+      10px 10px 0 rgba(255,255,255,0.05);
+    transition:border-color 0.6s ease, box-shadow 0.6s ease;
+  }
+  .card::after{
+    content:'';position:absolute;top:-3px;right:36px;
+    width:14px;height:14px;border-radius:50%;
+    background:var(--accent2);box-shadow:0 0 12px var(--accent2);
+  }
+
+  h1{
+    font-family:'Unbounded',sans-serif;font-weight:800;font-size:23px;line-height:1.22;
+    margin:0 0 8px;color:var(--fg);
+    text-shadow:2px 2px 0 rgba(0,0,0,0.35);
+  }
+  h2{font-family:'Unbounded',sans-serif;font-weight:800;font-size:19px;margin:0 0 18px;color:var(--fg);}
+  .sub{font-size:13px;color:var(--dim);margin:0 0 20px;}
+
+  textarea{
+    width:100%;min-height:76px;
+    background:rgba(0,0,0,0.22);
+    border:2.5px dashed rgba(255,255,255,0.22);
+    border-radius:16px;color:var(--fg);
+    font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;
+    padding:13px 15px;resize:vertical;outline:none;
+    transition:border-color 0.25s ease, background 0.25s ease;
+  }
+  textarea:focus{border-color:var(--accent2);border-style:solid;background:rgba(0,0,0,0.32);}
+  textarea::placeholder{color:rgba(245,241,255,0.32);}
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-size:12.5px;font-weight:700;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;}
+
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:10px;}
+  button{
+    font-family:'DM Sans',sans-serif;font-weight:700;font-size:13.5px;border:none;
+    cursor:pointer;transition:transform 0.15s ease, box-shadow 0.2s ease, opacity 0.15s ease;
+  }
+  button:active{transform:scale(0.95);}
+  .btn-primary{
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#191225;border-radius:999px;padding:12px 24px;
+    text-transform:uppercase;letter-spacing:0.05em;
+    box-shadow:0 0 18px rgba(201,79,194,0.35), 4px 4px 0 rgba(0,0,0,0.25);
+  }
+  .btn-primary:hover{box-shadow:0 0 26px rgba(201,79,194,0.5), 5px 5px 0 rgba(0,0,0,0.3);}
+  .btn-ghost{background:transparent;color:var(--dim);padding:10px 6px;text-transform:uppercase;letter-spacing:0.05em;font-size:13px;}
+  .btn-ghost:hover{color:var(--fg);}
+  .btn-text{background:none;color:var(--dim);font-weight:600;font-size:12.5px;padding:8px 4px;text-decoration:underline;}
+  .btn-text:hover{color:var(--fg);}
+
+  .priorities{list-style:none;padding:0;margin:0 0 6px;}
+  .priorities li{
+    display:flex;gap:12px;align-items:flex-start;padding:12px 4px;
+    border-bottom:2px dotted rgba(255,255,255,0.14);
+  }
+  .priorities li:last-child{border-bottom:none;}
+  .p-num{
+    font-family:'Unbounded',sans-serif;font-weight:800;font-size:14px;min-width:26px;height:26px;
+    display:flex;align-items:center;justify-content:center;border-radius:50%;
+    background:var(--accent);color:#191225;
+  }
+  .priorities li:nth-child(2) .p-num{background:var(--accent2);}
+  .priorities li:nth-child(3) .p-num{background:#4FD9C4;}
+  .p-text b{display:block;font-size:15px;color:var(--fg);}
+  .p-text span{font-size:12.5px;color:var(--dim);}
+
+  .toggle-row{display:flex;justify-content:space-between;align-items:center;padding:11px 2px;border-bottom:1px solid rgba(255,255,255,0.09);}
+  .toggle-row:last-child{border-bottom:none;}
+  .toggle-row span{font-size:14px;font-weight:500;}
+  .yn{display:flex;gap:7px;}
+  .yn button{
+    padding:7px 15px;font-size:12.5px;border-radius:999px;
+    background:rgba(255,255,255,0.06);color:var(--dim);
+    border:2px solid rgba(255,255,255,0.12);
+  }
+  .yn button.active-y{background:#4FD9C4;color:#0F2620;border-color:#4FD9C4;box-shadow:0 0 12px rgba(79,217,196,0.4);}
+  .yn button.active-n{background:rgba(255,255,255,0.16);color:var(--fg);border-color:rgba(255,255,255,0.3);}
+  .bonus-label{font-family:'Unbounded',sans-serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent2);margin:20px 0 4px;}
+
+  .summary-note{
+    font-size:13.5px;color:var(--dim);line-height:1.6;
+    background:rgba(0,0,0,0.22);border-radius:14px;padding:14px 16px;margin-bottom:18px;
+    border:2px dashed rgba(255,255,255,0.15);
+  }
+  .saved-check{text-align:center;padding:14px 0 6px;}
+  .saved-check .mark{
+    font-size:38px;color:#4FD9C4;
+    text-shadow:0 0 18px rgba(79,217,196,0.5);
+  }
+  .footer-note{text-align:center;font-size:11.5px;color:rgba(245,241,255,0.4);margin-top:16px;min-height:16px;position:relative;z-index:2;}
+
+  /* ---- Settings modal ---- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(10,8,18,0.65);
+    display:flex;align-items:center;justify-content:center;padding:20px;z-index:10;
+  }
+  .modal{
+    background:#1B1530;border:3px solid var(--accent);border-radius:24px;
+    max-width:440px;width:100%;max-height:85vh;overflow-y:auto;padding:26px 24px;
+    box-shadow:0 0 30px rgba(201,79,194,0.2), 6px 6px 0 var(--accent2);
+  }
+  .modal h2{margin-bottom:4px;font-family:'Unbounded',sans-serif;}
+  .modal .sub{margin-bottom:18px;}
+  .section-title{
+    font-family:'Unbounded',sans-serif;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;
+    color:var(--accent2);margin:20px 0 10px;
+  }
+  .section-title:first-of-type{margin-top:0;}
+  .storage-status{font-size:13px;color:var(--dim);margin-bottom:10px;line-height:1.5;}
+  .fmt-toggle{display:flex;gap:8px;margin-bottom:14px;}
+  .fmt-toggle button{flex:1;background:rgba(255,255,255,0.06);color:var(--dim);padding:9px;font-size:12.5px;border-radius:999px;border:2px solid transparent;}
+  .fmt-toggle button.active{background:var(--accent);color:#191225;border-color:var(--accent2);}
+  .edit-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .edit-row input{
+    flex:1;background:rgba(0,0,0,0.22);border:2px solid rgba(255,255,255,0.14);
+    border-radius:10px;color:var(--fg);font-size:13.5px;padding:8px 10px;font-family:'DM Sans',sans-serif;
+  }
+  .edit-row input:focus{outline:none;border-color:var(--accent2);}
+  .icon-btn{
+    background:rgba(255,255,255,0.06);color:var(--dim);border-radius:10px;
+    padding:8px 10px;font-size:13px;line-height:1;
+  }
+  .icon-btn:hover{color:var(--fg);}
+  .add-btn{background:none;color:#4FD9C4;font-size:12.5px;font-weight:700;padding:6px 2px;}
+  .modal-nav{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
+</style>
+</head>
+<body>
+<div class="bg-patterns"></div>
+<div class="bg-word" id="bgWord">PAUSE</div>
+<div id="floatLayer"></div>
+
+<div class="app">
+  <div class="topbar">
+    <span></span>
+    <button class="gear" id="gearBtn" title="Settings">⚙</button>
+  </div>
+  <div class="arc">
+    <svg viewBox="0 0 400 64" preserveAspectRatio="none">
+      <path d="M 20 60 Q 200 -10 380 60" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" fill="none"/>
+      <circle id="orb" class="orb" cx="20" cy="60" r="7" fill="#C94FC2"/>
+    </svg>
+  </div>
+  <div class="step-label" id="stepLabel">Step 1 of 5</div>
+  <div class="card" id="card"></div>
+  <div class="footer-note" id="footerNote"></div>
+</div>
+
+<script>
+const SETTINGS_KEY = 'reflection:settings';
+const ENTRY_PREFIX = 'reflection:entry:';
+const today = new Date();
+const dateKey = today.toISOString().slice(0,10);
+const dateLabel = today.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'});
+
+const highlightPrompts = [
+  "What was the highlight of your day?",
+  "What went well today?",
+  "What's one moment today you'd want to relive?"
+];
+const stressorPrompts = [
+  "What was a stressor for you today?",
+  "What do you wish you'd done differently today?",
+  "What happened today that could be an opportunity for growth?"
+];
+const hp = highlightPrompts[today.getDate() % highlightPrompts.length];
+const sp = stressorPrompts[today.getDate() % stressorPrompts.length];
+
+// toned-down maximalist accent rotation (one per step)
+const ACCENTS = ['#C94FC2', '#4FD9C4', '#E8D24F', '#E8895A', '#9B6FE0'];
+const CLASH   = ['#E8D24F', '#9B6FE0', '#C94FC2', '#4FD9C4', '#E8895A']; // paired clash color per step
+const BG_WORDS = ['SHINE', 'RELEASE', 'FOCUS', 'GROUND', 'REST'];
+
+const DEFAULT_SETTINGS = {
+  format: 'md',
+  priorities: [
+    {title:"Physical & mental health", desc:"You can't pour from an empty cup."},
+    {title:"Family", desc:"Myles, Josh, the pups."},
+    {title:"Creativity & learning", desc:""}
+  ],
+  nonneg: [
+    {key:'nature', label:'Nature, 20 min'},
+    {key:'water', label:'Water before coffee'},
+    {key:'pups', label:'Snuggles with the pups'},
+    {key:'myles', label:'Snuggles with Myles'}
+  ],
+  bonus: [
+    {key:'facetime', label:'FaceTime and/or reading with Myles'},
+    {key:'meal', label:'Healthy meal'},
+    {key:'gratitude', label:'Gratitude for Josh / life'}
+  ]
+};
+
+let settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+let entry = { highlight:'', highlightFeel:'', stressor:'', nonneg:{}, bonus:{} };
+let step = 0;
+const totalSteps = 5;
+let dirHandle = null;
+let folderName = null;
+let settingsOpen = false;
+let uid = 0;
+const newId = () => 'id' + (uid++);
+
+function syncEntryKeys(){
+  const nn = {};
+  settings.nonneg.forEach(i => nn[i.key] = (entry.nonneg && i.key in entry.nonneg) ? entry.nonneg[i.key] : null);
+  entry.nonneg = nn;
+  const bn = {};
+  settings.bonus.forEach(i => bn[i.key] = (entry.bonus && i.key in entry.bonus) ? entry.bonus[i.key] : null);
+  entry.bonus = bn;
+}
+
+// ---------- ambient chrome (arc, background word, floating shapes) ----------
+function orbPos(s){
+  const pts = [{x:20,y:60},{x:110,y:14},{x:200,y:-2},{x:290,y:14},{x:380,y:60}];
+  return pts[s];
+}
+function setAccentVars(idx){
+  const a = ACCENTS[idx] || ACCENTS[0];
+  const c = CLASH[idx] || CLASH[0];
+  document.documentElement.style.setProperty('--accent', a);
+  document.documentElement.style.setProperty('--accent2', c);
+  const orb = document.getElementById('orb');
+  if(orb) orb.setAttribute('fill', a);
+  const bw = document.getElementById('bgWord');
+  if(bw){ bw.textContent = BG_WORDS[idx] || 'PAUSE'; bw.style.color = a; }
+}
+function updateChrome(){
+  const p = orbPos(step);
+  document.getElementById('orb').setAttribute('cx', p.x);
+  document.getElementById('orb').setAttribute('cy', p.y);
+  document.getElementById('stepLabel').textContent = `Step ${step+1} of ${totalSteps}`;
+  setAccentVars(step);
+}
+function initFloatingShapes(){
+  const layer = document.getElementById('floatLayer');
+  const specs = [
+    {top:'8%', left:'6%', size:22, color:ACCENTS[0], delay:'0s'},
+    {top:'18%', left:'88%', size:14, color:ACCENTS[1], delay:'1.5s'},
+    {top:'70%', left:'4%', size:18, color:ACCENTS[2], delay:'0.7s'},
+    {top:'82%', left:'92%', size:26, color:ACCENTS[3], delay:'2.2s'},
+    {top:'46%', left:'94%', size:12, color:ACCENTS[4], delay:'1s'},
+    {top:'40%', left:'2%', size:10, color:ACCENTS[1], delay:'2.8s'}
+  ];
+  layer.innerHTML = specs.map(s => `
+    <div class="float-shape" style="top:${s.top};left:${s.left};width:${s.size}px;height:${s.size}px;background:${s.color};animation-delay:${s.delay};"></div>
+  `).join('');
+}
+
+// ---------- Storage ----------
+async function safeGet(key){
+  try{ const res = await window.storage.get(key); return res ? res.value : null; }catch(e){ return null; }
+}
+async function safeSet(key, value){ try{ await window.storage.set(key, value); }catch(e){} }
+
+async function loadSettings(){
+  const raw = await safeGet(SETTINGS_KEY);
+  if(raw){
+    try{
+      const parsed = JSON.parse(raw);
+      settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), parsed);
+    }catch(e){}
+  }
+}
+async function saveSettings(){ await safeSet(SETTINGS_KEY, JSON.stringify(settings)); }
+async function loadToday(){
+  const raw = await safeGet(ENTRY_PREFIX + dateKey);
+  if(raw){ try{ entry = Object.assign(entry, JSON.parse(raw)); }catch(e){} }
+  syncEntryKeys();
+}
+async function saveTodayEntry(){
+  await safeSet(ENTRY_PREFIX + dateKey, JSON.stringify(entry));
+  writeToFolderIfConnected();
+}
+async function getAllEntries(){
+  const out = [];
+  try{
+    const listing = await window.storage.list(ENTRY_PREFIX, false);
+    const keys = (listing && listing.keys) ? listing.keys : [];
+    for(const k of keys){
+      const raw = await safeGet(k);
+      if(raw){ try{ out.push({ date: k.replace(ENTRY_PREFIX,''), data: JSON.parse(raw) }); }catch(e){} }
+    }
+  }catch(e){}
+  out.sort((a,b) => a.date.localeCompare(b.date));
+  return out;
+}
+
+// ---------- Folder / file export ----------
+function folderSupported(){ return typeof window.showDirectoryPicker === 'function'; }
+async function connectFolder(){
+  if(!folderSupported()) return false;
+  try{
+    dirHandle = await window.showDirectoryPicker();
+    folderName = dirHandle.name;
+    try{ await dirHandle.requestPermission({mode:'readwrite'}); }catch(e){}
+    return true;
+  }catch(e){ dirHandle = null; folderName = null; return false; }
+}
+function fileNameForFormat(){ return settings.format === 'json' ? 'reflections.json' : 'reflections.md'; }
+function buildMarkdown(entries){
+  let out = '# Evening Reflections\n\n';
+  entries.forEach(({date, data}) => {
+    const d = new Date(date + 'T00:00:00');
+    const label = d.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric', year:'numeric'});
+    out += `## ${date} — ${label}\n\n`;
+    out += `**Highlight:** ${data.highlight || '_(blank)_'}\n`;
+    out += `**Felt:** ${data.highlightFeel || '_(blank)_'}\n\n`;
+    out += `**Stressor / growth:** ${data.stressor || '_(blank)_'}\n\n`;
+    out += `**Non-negotiables**\n`;
+    settings.nonneg.forEach(i => {
+      const v = data.nonneg ? data.nonneg[i.key] : null;
+      out += `- [${v === true ? 'x' : ' '}] ${i.label}\n`;
+    });
+    out += `\n**Bonus**\n`;
+    settings.bonus.forEach(i => {
+      const v = data.bonus ? data.bonus[i.key] : null;
+      out += `- [${v === true ? 'x' : ' '}] ${i.label}\n`;
+    });
+    out += `\n---\n\n`;
+  });
+  return out;
+}
+function buildJSON(entries){
+  const obj = {};
+  entries.forEach(({date,data}) => obj[date] = data);
+  return JSON.stringify(obj, null, 2);
+}
+async function writeToFolderIfConnected(){
+  if(!dirHandle) return;
+  try{
+    const entries = await getAllEntries();
+    const content = settings.format === 'json' ? buildJSON(entries) : buildMarkdown(entries);
+    const handle = await dirHandle.getFileHandle(fileNameForFormat(), {create:true});
+    const writable = await handle.createWritable();
+    await writable.write(content);
+    await writable.close();
+  }catch(e){}
+}
+async function downloadExport(){
+  const entries = await getAllEntries();
+  const content = settings.format === 'json' ? buildJSON(entries) : buildMarkdown(entries);
+  const blob = new Blob([content], {type: settings.format === 'json' ? 'application/json' : 'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = fileNameForFormat();
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+// ---------- Toggle helper ----------
+function ynButtons(groupKey, itemKey, value){
+  const yActive = value === true ? 'active-y' : '';
+  const nActive = value === false ? 'active-n' : '';
+  return `<div class="yn">
+    <button class="${yActive}" onclick="setYN('${groupKey}','${itemKey}',true)">Y</button>
+    <button class="${nActive}" onclick="setYN('${groupKey}','${itemKey}',false)">N</button>
+  </div>`;
+}
+window.setYN = function(groupKey, itemKey, val){
+  entry[groupKey][itemKey] = (entry[groupKey][itemKey] === val) ? null : val;
+  renderStep();
+};
+
+// ---------- Main rendering ----------
+function render(){ if(settingsOpen){ renderSettings(); return; } renderStep(); }
+
+function renderStep(){
+  updateChrome();
+  const card = document.getElementById('card');
+  const footer = document.getElementById('footerNote');
+  footer.textContent = '';
+
+  if(step === 0){
+    card.innerHTML = `
+      <h1>${hp}</h1>
+      <p class="sub">${dateLabel}</p>
+      <div class="field">
+        <textarea id="highlight" placeholder="A sentence or two...">${entry.highlight || ''}</textarea>
+      </div>
+      <div class="field">
+        <label>Describe how that made you feel — where did you feel it in your body?</label>
+        <textarea id="highlightFeel" placeholder="A sentence or two...">${entry.highlightFeel || ''}</textarea>
+      </div>
+      <div class="nav">
+        <span></span>
+        <button class="btn-primary" onclick="next()">Continue</button>
+      </div>
+    `;
+  } else if(step === 1){
+    card.innerHTML = `
+      <h1>${sp}</h1>
+      <div class="field">
+        <textarea id="stressor" placeholder="A sentence or two...">${entry.stressor || ''}</textarea>
+      </div>
+      <div class="nav">
+        <button class="btn-ghost" onclick="back()">Back</button>
+        <button class="btn-primary" onclick="next()">Continue</button>
+      </div>
+    `;
+  } else if(step === 2){
+    card.innerHTML = `
+      <h1>Your priorities</h1>
+      <p class="sub">A quick refocus before you close the day.</p>
+      <ul class="priorities">
+        ${settings.priorities.map((p,idx) => `
+          <li><span class="p-num">${idx+1}</span><span class="p-text"><b>${p.title || 'Untitled'}</b>${p.desc ? `<span>${p.desc}</span>` : ''}</span></li>
+        `).join('')}
+      </ul>
+      <div class="nav">
+        <button class="btn-ghost" onclick="back()">Back</button>
+        <button class="btn-primary" onclick="next()">Continue</button>
+      </div>
+    `;
+  } else if(step === 3){
+    card.innerHTML = `
+      <h1>Non-negotiables</h1>
+      <p class="sub">Did today include these?</p>
+      ${settings.nonneg.map(i => `<div class="toggle-row"><span>${i.label}</span>${ynButtons('nonneg', i.key, entry.nonneg[i.key])}</div>`).join('')}
+      ${settings.bonus.length ? `<div class="bonus-label">Bonus</div>` : ''}
+      ${settings.bonus.map(i => `<div class="toggle-row"><span>${i.label}</span>${ynButtons('bonus', i.key, entry.bonus[i.key])}</div>`).join('')}
+      <div class="nav" style="margin-top:18px;">
+        <button class="btn-ghost" onclick="back()">Back</button>
+        <button class="btn-primary" onclick="next()">Continue</button>
+      </div>
+    `;
+  } else if(step === 4){
+    card.innerHTML = `
+      <div class="saved-check"><div class="mark">✓</div></div>
+      <h1 style="text-align:center;">Day closed out</h1>
+      <p class="sub" style="text-align:center;">${dateLabel}</p>
+      <div class="summary-note">${entry.highlight ? entry.highlight : '<i>No highlight recorded.</i>'}</div>
+      <div class="nav" style="justify-content:center;">
+        <button class="btn-primary" onclick="finish()">Save &amp; close</button>
+      </div>
+    `;
+  }
+}
+
+function captureFields(){
+  if(step === 0){
+    const h = document.getElementById('highlight'); if(h) entry.highlight = h.value;
+    const hf = document.getElementById('highlightFeel'); if(hf) entry.highlightFeel = hf.value;
+  }
+  if(step === 1){
+    const s = document.getElementById('stressor'); if(s) entry.stressor = s.value;
+  }
+}
+window.next = async function(){
+  captureFields();
+  await saveTodayEntry();
+  if(step < totalSteps - 1){ step++; render(); }
+};
+window.back = function(){ captureFields(); if(step > 0){ step--; render(); } };
+window.finish = async function(){
+  await saveTodayEntry();
+  document.getElementById('card').innerHTML = `
+    <div class="saved-check"><div class="mark">✓</div></div>
+    <h1 style="text-align:center;">Rest well.</h1>
+    <p class="sub" style="text-align:center;">See you tomorrow evening.</p>
+  `;
+  document.getElementById('footerNote').textContent = dirHandle ? `Saved to "${folderName}"` : 'Saved on this device.';
+};
+
+// ---------- Settings modal ----------
+function openSettings(){ settingsOpen = true; render(); }
+function closeSettingsUI(){ settingsOpen = false; render(); }
+window.closeSettings = async function(){
+  await saveSettings();
+  syncEntryKeys();
+  writeToFolderIfConnected();
+  closeSettingsUI();
+};
+window.setFormat = function(fmt){ settings.format = fmt; renderSettings(); };
+window.connectFolderClick = async function(){
+  const ok = await connectFolder();
+  renderSettings();
+  if(ok) writeToFolderIfConnected();
+};
+window.disconnectFolder = function(){ dirHandle = null; folderName = null; renderSettings(); };
+window.editListLabel = function(list, idx, field, value){ settings[list][idx][field] = value; };
+window.addListItem = function(list){
+  if(list === 'priorities'){ settings.priorities.push({title:'', desc:''}); }
+  else{ settings[list].push({key: newId(), label:''}); }
+  renderSettings();
+};
+window.removeListItem = function(list, idx){ settings[list].splice(idx,1); renderSettings(); };
+
+function renderSettings(){
+  const card = document.getElementById('card');
+  document.getElementById('stepLabel').textContent = 'Settings';
+  setAccentVars(0);
+
+  card.innerHTML = `
+    <h2>Settings</h2>
+
+    <div class="section-title">Storage</div>
+    <div class="storage-status">
+      ${folderSupported()
+        ? (dirHandle ? `Saving to folder: <b>${folderName}</b>` : 'No folder connected yet — entries are still saved on this device.')
+        : 'Folder access is not available in this browser. Entries are saved on this device; use Export to get a file.'}
+    </div>
+    <div class="nav" style="justify-content:flex-start;gap:8px;margin-bottom:14px;">
+      ${folderSupported() ? (dirHandle
+        ? `<button class="btn-ghost" onclick="disconnectFolder()">Disconnect folder</button>`
+        : `<button class="btn-primary" onclick="connectFolderClick()">Choose folder</button>`) : ''}
+      <button class="btn-ghost" onclick="downloadExport()">Export now</button>
+    </div>
+
+    <div class="fmt-toggle">
+      <button class="${settings.format==='md' ? 'active':''}" onclick="setFormat('md')">Markdown (.md)</button>
+      <button class="${settings.format==='json' ? 'active':''}" onclick="setFormat('json')">JSON (.json)</button>
+    </div>
+
+    <div class="section-title">Priorities</div>
+    <div id="prioritiesList">
+      ${settings.priorities.map((pr, idx) => `
+        <div class="edit-row">
+          <input type="text" placeholder="Priority title" value="${escapeAttr(pr.title)}" oninput="editListLabel('priorities',${idx},'title',this.value)">
+          <input type="text" placeholder="Note (optional)" value="${escapeAttr(pr.desc)}" oninput="editListLabel('priorities',${idx},'desc',this.value)">
+          <button class="icon-btn" onclick="removeListItem('priorities',${idx})">✕</button>
+        </div>
+      `).join('')}
+    </div>
+    <button class="add-btn" onclick="addListItem('priorities')">+ Add priority</button>
+
+    <div class="section-title">Non-negotiables</div>
+    <div id="nonnegList">
+      ${settings.nonneg.map((it, idx) => `
+        <div class="edit-row">
+          <input type="text" placeholder="Non-negotiable" value="${escapeAttr(it.label)}" oninput="editListLabel('nonneg',${idx},'label',this.value)">
+          <button class="icon-btn" onclick="removeListItem('nonneg',${idx})">✕</button>
+        </div>
+      `).join('')}
+    </div>
+    <button class="add-btn" onclick="addListItem('nonneg')">+ Add non-negotiable</button>
+
+    <div class="section-title">Bonus</div>
+    <div id="bonusList">
+      ${settings.bonus.map((it, idx) => `
+        <div class="edit-row">
+          <input type="text" placeholder="Bonus item" value="${escapeAttr(it.label)}" oninput="editListLabel('bonus',${idx},'label',this.value)">
+          <button class="icon-btn" onclick="removeListItem('bonus',${idx})">✕</button>
+        </div>
+      `).join('')}
+    </div>
+    <button class="add-btn" onclick="addListItem('bonus')">+ Add bonus item</button>
+
+    <div class="modal-nav">
+      <button class="btn-primary" onclick="closeSettings()">Done</button>
+    </div>
+  `;
+}
+function escapeAttr(str){
+  return (str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+document.getElementById('gearBtn').addEventListener('click', openSettings);
+
+(async function init(){
+  initFloatingShapes();
+  await loadSettings();
+  await loadToday();
+  render();
+})();
+</script>
+</body>
+</html>
