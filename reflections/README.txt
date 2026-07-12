@@ -1,8 +1,11 @@
 EVENING REFLECTION — APP PACKAGE
 ==================================
 
-This folder is a tiny installable web app:
+A quiet, five-step wind-down ritual: reflect on your day, then refocus
+on your priorities before bed.
 
+FOLDER CONTENTS
+----------------
   index.html
   manifest.json
   icons/
@@ -13,35 +16,55 @@ This folder is a tiny installable web app:
 Keep these files together in this same folder structure — index.html
 looks for manifest.json and icons/ right next to it.
 
+FEATURES
+---------
+- Five-step flow: highlight, stressor/growth, priorities, non-negotiables,
+  close-out — each with rotating prompt variations
+- Swipe left/right (or tap the arrow icons) to move between steps
+- Minimal sticky footer nav with step dots — never overlaps content,
+  and the middle of the screen scrolls independently if a step runs long
+- Date shown persistently in the header
+- Settings menu (gear icon): rename or add/remove priorities and
+  non-negotiables, choose export format, connect a folder to save to
+- Entries save automatically per day, locally in the browser
+- Optional folder sync to a single reflections.md or reflections.json
+  file (Chrome/Edge only — see below)
+- Installable as a home-screen app with a custom crescent-moon icon
+
 HOW TO GET THE CRESCENT-MOON ICON ON YOUR HOME SCREEN
 -------------------------------------------------------
-
 Custom icons on a phone home screen require the page to be loaded
-over http/https (not opened directly as a local file). Two easy ways:
+over http/https (not opened directly as a local file).
 
-OPTION A — Free static hosting (2 minutes, most reliable)
-  1. Go to https://app.netlify.com/drop on a computer.
-  2. Drag this whole folder onto the page. It gives you a live URL.
+If you're hosting on GitHub Pages:
+  1. Push this folder's contents to your repo (see below).
+  2. Enable Pages under Settings → Pages, and note the live URL
+     GitHub gives you (it will look like
+     https://yourusername.github.io/reponame/).
   3. Open that URL on your phone.
      - iPhone (Safari): tap Share → "Add to Home Screen"
-     - Android (Chrome): tap the ⋮ menu → "Install app" (or you'll
-       see an automatic install banner)
-  4. The moon icon will be used automatically.
-
-OPTION B — Run it locally on your own Wi-Fi
-  1. On a computer, open a terminal in this folder and run:
-       python3 -m http.server 8000
-  2. Find your computer's local IP address (e.g. 192.168.1.23).
-  3. On your phone, open http://192.168.1.23:8000 in the browser
-     (must be on the same Wi-Fi network).
-  4. Add to Home Screen as above.
+     - Android (Chrome): tap the ⋮ menu → "Install app"
+  4. The moon icon is picked up automatically from manifest.json.
 
 WITHOUT HOSTING
-  You can still just open index.html directly on your phone (e.g.
-  via AirDrop, email, or a files app) — the reflection tool works
-  exactly the same. You just won't get the custom moon icon; it'll
-  use your browser's default bookmark icon instead.
+  You can still open index.html directly on your phone — the tool
+  works the same. You just won't get the custom moon icon; it'll use
+  your browser's default bookmark icon instead.
 
-Your entries are stored locally in the browser/app you open it in,
-and — if you connect a folder in Settings — mirrored to a
-reflections.md or reflections.json file on your device.
+FOLDER-SYNC STORAGE NOTE
+--------------------------
+The "Choose folder" option in Settings uses the File System Access
+API, which currently only works in Chromium browsers (Chrome, Edge)
+and needs to be reconnected each session — it isn't persisted across
+page reloads. Your entries are always saved locally regardless, and
+you can use "Export now" in Settings anytime to download a copy.
+
+PUSHING UPDATES TO YOUR REPO
+------------------------------
+From inside this folder:
+  git add index.html manifest.json README.txt icons
+  git commit -m "Update reflection app UI"
+  git push
+
+GitHub Pages will redeploy automatically within a minute or two —
+no need to redo "Add to Home Screen" afterward.
