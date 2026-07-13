@@ -88,8 +88,10 @@
   }
   .date-chip{
     font-family:'Unbounded',sans-serif;font-weight:800;font-size:16px;
-    letter-spacing:-0.01em;color:var(--fg);
+    letter-spacing:-0.01em;color:var(--fg);cursor:pointer;
+    background:none;border:none;padding:0;transition:opacity 0.2s ease;
   }
+  .date-chip:hover{opacity:0.75;}
   .gear{
     background:var(--muted);border:2px solid var(--accent2);cursor:pointer;
     color:var(--dim);font-size:16px;padding:8px 10px;line-height:1;
@@ -133,6 +135,12 @@
     width:14px;height:14px;border-radius:50%;
     background:var(--accent2);box-shadow:0 0 12px var(--accent2);
   }
+  .close-x{
+    position:absolute;top:20px;right:20px;
+    background:none;border:none;color:var(--dim);font-size:20px;line-height:1;
+    padding:6px;border-radius:8px;cursor:pointer;transition:color 0.2s ease, background 0.2s ease;
+  }
+  .close-x:hover{color:var(--fg);background:rgba(255,255,255,0.06);}
 
   h1{
     font-family:'Unbounded',sans-serif;font-weight:800;font-size:23px;line-height:1.22;
@@ -271,6 +279,50 @@
   .icon-btn:hover{color:var(--fg);}
   .add-btn{background:none;color:#4FD9C4;font-size:12.5px;font-weight:700;padding:6px 2px;}
   .modal-nav{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
+
+  /* ---- History / calendar view ---- */
+  .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .cal-header button{background:none;border:none;color:var(--dim);font-size:18px;padding:6px 10px;border-radius:8px;cursor:pointer;}
+  .cal-header button:hover{color:var(--fg);background:rgba(255,255,255,0.06);}
+  .cal-title{font-family:'Unbounded',sans-serif;font-weight:700;font-size:13px;letter-spacing:0.05em;color:var(--fg);text-transform:uppercase;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:18px;}
+  .cal-dow{text-align:center;font-size:10px;color:var(--dim);font-weight:700;letter-spacing:0.05em;padding-bottom:4px;}
+  .cal-day{
+    position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+    border-radius:10px;font-size:12.5px;color:var(--dim);cursor:pointer;background:transparent;border:none;
+    font-family:'DM Sans',sans-serif;transition:background 0.15s ease, color 0.15s ease;
+  }
+  .cal-day:hover{background:rgba(255,255,255,0.06);color:var(--fg);}
+  .cal-day.empty{cursor:default;pointer-events:none;}
+  .cal-day.today{color:var(--fg);font-weight:700;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,0.25);}
+  .cal-day.selected{background:var(--accent);color:#191225;font-weight:700;}
+  .cal-day .dot{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent2);}
+  .cal-day.selected .dot{background:#191225;}
+
+  .day-detail{
+    background:rgba(0,0,0,0.2);border:2px dashed rgba(255,255,255,0.14);border-radius:14px;
+    padding:14px 16px;margin-bottom:18px;
+  }
+  .dd-date{font-family:'Unbounded',sans-serif;font-weight:700;font-size:12px;color:var(--accent2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;}
+  .dd-row{margin-bottom:8px;}
+  .dd-row:last-of-type{margin-bottom:10px;}
+  .dd-label{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;}
+  .dd-text{font-size:13.5px;color:var(--fg);line-height:1.5;}
+  .dd-empty{font-size:13px;color:var(--dim);font-style:italic;}
+  .dd-tally{font-size:12px;color:var(--dim);}
+
+  .entry-list{display:flex;flex-direction:column;gap:2px;max-height:220px;overflow-y:auto;}
+  .entry-row{
+    display:flex;justify-content:flex-start;align-items:center;gap:12px;
+    padding:10px 4px;border-bottom:1px solid rgba(255,255,255,0.08);
+    background:none;border-left:none;border-right:none;border-top:none;
+    cursor:pointer;text-align:left;width:100%;font-family:'DM Sans',sans-serif;
+  }
+  .entry-row:last-child{border-bottom:none;}
+  .entry-row:hover{background:rgba(255,255,255,0.05);}
+  .entry-date{font-size:11.5px;color:var(--dim);flex-shrink:0;width:56px;font-weight:700;}
+  .entry-snippet{font-size:13px;color:var(--fg);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .entry-empty-note{font-size:13px;color:var(--dim);font-style:italic;padding:12px 0;}
 </style>
 </head>
 <body>
@@ -280,7 +332,7 @@
 
 <div class="app-shell">
   <div class="app-header">
-    <span class="date-chip" id="dateChip"></span>
+    <button class="date-chip" id="dateChip" onclick="openHistory()"></button>
     <button class="gear" id="gearBtn" title="Settings">⚙</button>
   </div>
 
@@ -302,6 +354,8 @@
     <button class="nav-icon-btn primary" id="navNext" onclick="handleNextClick()" aria-label="Continue">›</button>
   </div>
 </div>
+
+<input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="handleImportFile(event)">
 
 <script>
 const SETTINGS_KEY = 'reflection:settings';
@@ -349,12 +403,16 @@ const DEFAULT_SETTINGS = {
 };
 
 let settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-let entry = { highlight:'', highlightFeel:'', stressor:'', nonneg:{}, bonus:{} };
+let entry = { highlight:'', highlightFeel:'', stressor:'', stressorFeel:'', nonneg:{}, bonus:{} };
 let step = 0;
 const totalSteps = 5;
 let dirHandle = null;
 let folderName = null;
 let settingsOpen = false;
+let historyOpen = false;
+let histYear, histMonth;
+let selectedDate = null;
+let historyEntries = [];
 let uid = 0;
 const newId = () => 'id' + (uid++);
 
@@ -498,13 +556,22 @@ async function connectFolder(){
 function fileNameForFormat(){ return settings.format === 'json' ? 'reflections.json' : 'reflections.md'; }
 function buildMarkdown(entries){
   let out = '# Evening Reflections\n\n';
+  out += '## Settings (reference only — import a .json backup to restore these)\n\n';
+  out += '**Priorities**\n';
+  settings.priorities.forEach((p,i) => { out += `${i+1}. ${p.title || 'Untitled'}${p.desc ? ' — ' + p.desc : ''}\n`; });
+  out += '\n**Non-negotiables**\n';
+  settings.nonneg.forEach(i => { out += `- ${i.label}\n`; });
+  out += '\n**Bonus**\n';
+  settings.bonus.forEach(i => { out += `- ${i.label}\n`; });
+  out += '\n---\n\n';
   entries.forEach(({date, data}) => {
     const d = new Date(date + 'T00:00:00');
     const label = d.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric', year:'numeric'});
     out += `## ${date} — ${label}\n\n`;
     out += `**Highlight:** ${data.highlight || '_(blank)_'}\n`;
     out += `**Felt:** ${data.highlightFeel || '_(blank)_'}\n\n`;
-    out += `**Stressor / growth:** ${data.stressor || '_(blank)_'}\n\n`;
+    out += `**Stressor / growth:** ${data.stressor || '_(blank)_'}\n`;
+    out += `**Felt:** ${data.stressorFeel || '_(blank)_'}\n\n`;
     out += `**Non-negotiables**\n`;
     settings.nonneg.forEach(i => {
       const v = data.nonneg ? data.nonneg[i.key] : null;
@@ -520,8 +587,8 @@ function buildMarkdown(entries){
   return out;
 }
 function buildJSON(entries){
-  const obj = {};
-  entries.forEach(({date,data}) => obj[date] = data);
+  const obj = { settings: settings, entries: {} };
+  entries.forEach(({date,data}) => obj.entries[date] = data);
   return JSON.stringify(obj, null, 2);
 }
 async function writeToFolderIfConnected(){
@@ -546,6 +613,63 @@ async function downloadExport(){
   URL.revokeObjectURL(url);
 }
 
+function isEntryShaped(obj){
+  return obj && typeof obj === 'object' && ('highlight' in obj || 'stressor' in obj || 'nonneg' in obj || 'bonus' in obj);
+}
+
+async function importFromParsed(parsed){
+  let importedSettings = null;
+  let entriesObj = null;
+
+  if(parsed && typeof parsed === 'object' && parsed.entries && typeof parsed.entries === 'object'){
+    // current backup shape: { settings, entries }
+    entriesObj = parsed.entries;
+    if(parsed.settings) importedSettings = parsed.settings;
+  } else if(parsed && typeof parsed === 'object'){
+    // legacy shape: flat { "YYYY-MM-DD": {...} }
+    entriesObj = parsed;
+  }
+
+  if(!entriesObj) throw new Error('No recognizable entries found in this file.');
+
+  if(importedSettings){
+    settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), importedSettings);
+    await saveSettings();
+  }
+
+  let count = 0;
+  for(const [dstr, data] of Object.entries(entriesObj)){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(dstr)) continue;
+    if(!isEntryShaped(data)) continue;
+    await safeSet(ENTRY_PREFIX + dstr, JSON.stringify(data));
+    count++;
+  }
+
+  syncEntryKeys();
+  await loadToday();
+  writeToFolderIfConnected();
+  return count;
+}
+
+window.triggerImport = function(){
+  document.getElementById('importFile').click();
+};
+window.handleImportFile = async function(evt){
+  const file = evt.target.files && evt.target.files[0];
+  evt.target.value = ''; // allow re-selecting the same file later
+  if(!file) return;
+  const statusEl = document.getElementById('importStatus');
+  try{
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    const count = await importFromParsed(parsed);
+    if(statusEl){ statusEl.textContent = `Imported ${count} entr${count === 1 ? 'y' : 'ies'}${parsed.settings ? ' and settings' : ''}.`; statusEl.style.color = '#4FD9C4'; }
+  }catch(e){
+    if(statusEl){ statusEl.textContent = 'Import failed — make sure this is a .json backup exported from this app.'; statusEl.style.color = '#E8895A'; }
+  }
+  renderSettings();
+};
+
 // ---------- Toggle helper ----------
 function ynButtons(groupKey, itemKey, value){
   const yActive = value === true ? 'active-y' : '';
@@ -561,7 +685,11 @@ window.setYN = function(groupKey, itemKey, val){
 };
 
 // ---------- Main rendering ----------
-function render(){ if(settingsOpen){ renderSettings(); return; } renderStep(); }
+function render(){
+  if(settingsOpen){ renderSettings(); return; }
+  if(historyOpen){ renderHistory(); return; }
+  renderStep();
+}
 
 function renderStep(){
   updateChrome();
@@ -585,6 +713,10 @@ function renderStep(){
       <h1>${sp}</h1>
       <div class="field">
         <textarea id="stressor" placeholder="A sentence or two...">${entry.stressor || ''}</textarea>
+      </div>
+      <div class="field">
+        <label>Describe how that made you feel — where did you feel it in your body?</label>
+        <textarea id="stressorFeel" placeholder="A sentence or two...">${entry.stressorFeel || ''}</textarea>
       </div>
     `;
   } else if(step === 2){
@@ -622,6 +754,7 @@ function captureFields(){
   }
   if(step === 1){
     const s = document.getElementById('stressor'); if(s) entry.stressor = s.value;
+    const sf = document.getElementById('stressorFeel'); if(sf) entry.stressorFeel = sf.value;
   }
 }
 window.next = async function(){
@@ -650,20 +783,37 @@ window.closeSettings = async function(){
   writeToFolderIfConnected();
   closeSettingsUI();
 };
-window.setFormat = function(fmt){ settings.format = fmt; renderSettings(); };
+let settingsSaveTimer = null;
+function scheduleSettingsSave(){
+  clearTimeout(settingsSaveTimer);
+  settingsSaveTimer = setTimeout(() => {
+    saveSettings();
+    writeToFolderIfConnected();
+  }, 500);
+}
+
+window.setFormat = function(fmt){ settings.format = fmt; scheduleSettingsSave(); renderSettings(); };
 window.connectFolderClick = async function(){
   const ok = await connectFolder();
   renderSettings();
   if(ok) writeToFolderIfConnected();
 };
 window.disconnectFolder = function(){ dirHandle = null; folderName = null; renderSettings(); };
-window.editListLabel = function(list, idx, field, value){ settings[list][idx][field] = value; };
+window.editListLabel = function(list, idx, field, value){
+  settings[list][idx][field] = value;
+  scheduleSettingsSave();
+};
 window.addListItem = function(list){
   if(list === 'priorities'){ settings.priorities.push({title:'', desc:''}); }
   else{ settings[list].push({key: newId(), label:''}); }
+  scheduleSettingsSave();
   renderSettings();
 };
-window.removeListItem = function(list, idx){ settings[list].splice(idx,1); renderSettings(); };
+window.removeListItem = function(list, idx){
+  settings[list].splice(idx,1);
+  scheduleSettingsSave();
+  renderSettings();
+};
 
 function renderSettings(){
   const card = document.getElementById('card');
@@ -678,8 +828,9 @@ function renderSettings(){
       ${folderSupported()
         ? (dirHandle ? `Saving to folder: <b>${folderName}</b>` : 'No folder connected yet — entries are still saved on this device.')
         : 'Folder access is not available in this browser. Entries are saved on this device; use Export to get a file.'}
+      <br>Settings save automatically. JSON export/import is the full backup (settings + entries); Markdown export is for reading only.
     </div>
-    <div class="nav" style="justify-content:flex-start;gap:8px;margin-bottom:14px;">
+    <div class="nav" style="justify-content:flex-start;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
       ${folderSupported() ? (dirHandle
         ? `<button class="btn-ghost" onclick="disconnectFolder()">Disconnect folder</button>`
         : `<button class="btn-primary" onclick="connectFolderClick()">Choose folder</button>`) : ''}
@@ -725,6 +876,10 @@ function renderSettings(){
     </div>
     <button class="add-btn" onclick="addListItem('bonus')">+ Add bonus item</button>
 
+    <div class="section-title">Import</div>
+    <button class="btn-ghost" onclick="triggerImport()">Import backup</button>
+    <div id="importStatus" style="font-size:12px;color:var(--dim);min-height:16px;margin-top:6px;"></div>
+
     <div class="modal-nav">
       <button class="btn-primary" onclick="closeSettings()">Done</button>
     </div>
@@ -732,6 +887,109 @@ function renderSettings(){
 }
 function escapeAttr(str){
   return (str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+// ---------- History / calendar view ----------
+window.openHistory = async function(){
+  historyOpen = true;
+  hideBottomNav();
+  const now = new Date();
+  histYear = now.getFullYear();
+  histMonth = now.getMonth();
+  selectedDate = dateKey;
+  historyEntries = await getAllEntries();
+  render();
+};
+window.closeHistory = function(){ historyOpen = false; render(); };
+window.changeMonth = function(delta){
+  histMonth += delta;
+  if(histMonth < 0){ histMonth = 11; histYear--; }
+  if(histMonth > 11){ histMonth = 0; histYear++; }
+  renderHistory();
+};
+window.selectDay = function(dstr){
+  selectedDate = dstr;
+  const d = new Date(dstr + 'T00:00:00');
+  histYear = d.getFullYear();
+  histMonth = d.getMonth();
+  renderHistory();
+};
+
+function renderHistory(){
+  const card = document.getElementById('card');
+  document.getElementById('stepLabel').textContent = 'History';
+  setAccentVars(0);
+
+  const map = {};
+  historyEntries.forEach(e => map[e.date] = e.data);
+
+  const monthLabel = new Date(histYear, histMonth).toLocaleDateString(undefined,{month:'long', year:'numeric'});
+  const firstWeekday = new Date(histYear, histMonth, 1).getDay();
+  const daysInMonth = new Date(histYear, histMonth + 1, 0).getDate();
+
+  let dayCells = ['S','M','T','W','T','F','S'].map(d => `<div class="cal-dow">${d}</div>`).join('');
+  for(let i = 0; i < firstWeekday; i++){ dayCells += `<button class="cal-day empty"></button>`; }
+  for(let d = 1; d <= daysInMonth; d++){
+    const dstr = `${histYear}-${String(histMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const has = !!map[dstr];
+    const classes = ['cal-day'];
+    if(dstr === dateKey) classes.push('today');
+    if(dstr === selectedDate) classes.push('selected');
+    dayCells += `<button class="${classes.join(' ')}" onclick="selectDay('${dstr}')">${d}${has ? '<span class="dot"></span>' : ''}</button>`;
+  }
+
+  const selData = selectedDate ? map[selectedDate] : null;
+  const selLabel = selectedDate ? new Date(selectedDate + 'T00:00:00').toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'}) : '';
+  let detailHtml = '';
+  if(selData){
+    const nnTotal = settings.nonneg.length;
+    const nnDone = settings.nonneg.filter(i => selData.nonneg && selData.nonneg[i.key] === true).length;
+    detailHtml = `
+      <div class="day-detail">
+        <div class="dd-date">${selLabel}</div>
+        <div class="dd-row">
+          <div class="dd-label">Highlight</div>
+          <div class="dd-text">${selData.highlight ? escapeAttr(selData.highlight) : '<span class="dd-empty">No highlight recorded.</span>'}</div>
+        </div>
+        ${selData.stressor ? `<div class="dd-row"><div class="dd-label">Stressor / growth</div><div class="dd-text">${escapeAttr(selData.stressor)}</div></div>` : ''}
+        ${selData.stressorFeel ? `<div class="dd-row"><div class="dd-label">Felt</div><div class="dd-text">${escapeAttr(selData.stressorFeel)}</div></div>` : ''}
+        ${nnTotal ? `<div class="dd-tally">${nnDone}/${nnTotal} non-negotiables</div>` : ''}
+      </div>
+    `;
+  } else if(selectedDate){
+    detailHtml = `
+      <div class="day-detail">
+        <div class="dd-date">${selLabel}</div>
+        <div class="dd-empty">No entry for this day.</div>
+      </div>
+    `;
+  }
+
+  const listHtml = historyEntries.length
+    ? historyEntries.slice().reverse().map(e => {
+        const d = new Date(e.date + 'T00:00:00');
+        const label = d.toLocaleDateString(undefined,{month:'short', day:'numeric'});
+        const snippet = e.data.highlight ? escapeAttr(e.data.highlight) : 'No highlight recorded.';
+        return `<button class="entry-row" onclick="selectDay('${e.date}')">
+          <span class="entry-date">${label}</span>
+          <span class="entry-snippet">${snippet}</span>
+        </button>`;
+      }).join('')
+    : `<div class="entry-empty-note">No entries yet — come back after your first evening reflection.</div>`;
+
+  card.innerHTML = `
+    <button class="close-x" onclick="closeHistory()" aria-label="Close">✕</button>
+    <h2>History</h2>
+    <div class="cal-header">
+      <button onclick="changeMonth(-1)" aria-label="Previous month">‹</button>
+      <span class="cal-title">${monthLabel}</span>
+      <button onclick="changeMonth(1)" aria-label="Next month">›</button>
+    </div>
+    <div class="cal-grid">${dayCells}</div>
+    ${detailHtml}
+    <div class="section-title">All entries</div>
+    <div class="entry-list">${listHtml}</div>
+  `;
 }
 
 document.getElementById('gearBtn').addEventListener('click', openSettings);
