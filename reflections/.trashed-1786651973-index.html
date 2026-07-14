@@ -4,16 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Evening Reflection</title>
-<meta name="theme-color" content="#12101F">
-<meta name="description" content="A quiet daily reflection ritual for home and work — track your day and refocus on your priorities.">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Reflection">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=DM+Sans:wght@400;500;700&display=swap');
 
@@ -386,40 +376,20 @@ const today = new Date();
 const dateKey = today.toISOString().slice(0,10);
 const dateLabel = today.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'});
 
-const PROMPTS = {
-  home: {
-    highlight: [
-      "What was the highlight of your day?",
-      "What went well today?",
-      "What's one moment today you'd want to relive?"
-    ],
-    stressor: [
-      "What was a stressor for you today?",
-      "What do you wish you'd done differently today?",
-      "What happened today that could be an opportunity for growth?"
-    ],
-    highlightFollow: "Describe how that made you feel — where did you feel it in your body?",
-    stressorFollow: "Describe how that made you feel — where did you feel it in your body?"
-  },
-  work: {
-    highlight: ["What went well today?"],
-    stressor: ["What happened today that didn't go the way you wanted?"],
-    highlightFollow: "Describe how that made you feel — where did you feel it in your body?",
-    stressorFollow: "How can you resolve it?"
-  }
-};
-function currentHighlightPrompt(){
-  const arr = PROMPTS[currentMode].highlight;
-  return arr[today.getDate() % arr.length];
-}
-function currentStressorPrompt(){
-  const arr = PROMPTS[currentMode].stressor;
-  return arr[today.getDate() % arr.length];
-}
-function currentHighlightFollow(){ return PROMPTS[currentMode].highlightFollow; }
-function currentStressorFollow(){ return PROMPTS[currentMode].stressorFollow; }
+const highlightPrompts = [
+  "What was the highlight of your day?",
+  "What went well today?",
+  "What's one moment today you'd want to relive?"
+];
+const stressorPrompts = [
+  "What was a stressor for you today?",
+  "What do you wish you'd done differently today?",
+  "What happened today that could be an opportunity for growth?"
+];
+const hp = highlightPrompts[today.getDate() % highlightPrompts.length];
+const sp = stressorPrompts[today.getDate() % stressorPrompts.length];
 
-const APP_VERSION = '1.9.0';
+const APP_VERSION = '1.8.0';
 const BUILD_DATE = '2026-07-13';
 
 // ---- dual-mode themes: home (warm evening) vs work (bright/cool) ----
@@ -445,38 +415,41 @@ function currentTheme(){ return THEMES[currentMode] || THEMES.home; }
 
 const DEFAULT_SETTINGS_BY_MODE = {
   home: {
-    format: 'json',
+    format: 'md',
     priorities: [
-      {title:"Physical health", desc:"Nothing matters if you're dead"},
-      {title:"Mental health", desc:"You can't pour from an empty cup"},
-      {title:"Family", desc:"You are Myles' role model"},
-      {title:"Creativity & learning", desc:"Aim for personal growth"}
+      {title:"Physical & mental health", desc:"You can't pour from an empty cup."},
+      {title:"Family", desc:"Myles, Josh, the pups."},
+      {title:"Creativity & learning", desc:""}
     ],
     nonneg: [
-      {key:'nature', label:'20 minutes outside'},
+      {key:'nature', label:'Nature, 20 min'},
       {key:'water', label:'Water before coffee'},
-      {key:'pups', label:'Snuggles with Myles'},
-      {key:'myles', label:'Snuggles with the pups'}
+      {key:'pups', label:'Snuggles with the pups'},
+      {key:'myles', label:'Snuggles with Myles'}
     ],
     bonus: [
-      {key:'facetime', label:'Face time and/or reading with Myles'},
+      {key:'facetime', label:'FaceTime and/or reading with Myles'},
       {key:'meal', label:'Healthy meal'},
-      {key:'gratitude', label:'Practice gratitude'}
+      {key:'gratitude', label:'Gratitude for Josh / life'}
     ]
   },
   work: {
-    format: 'json',
+    format: 'md',
     priorities: [
-      {title:"Give 75% without compromising your health", desc:"Is this worth the cost of your sanity?"},
-      {title:"Focus on what you can control", desc:"What's your role?"},
-      {title:"Teach and empower others to help themselves", desc:"What's the worst that will happen if I don't do it?"},
-      {title:"Be kind and professional", desc:""}
+      {title:"Focus & deep work", desc:"Protect the important over the urgent."},
+      {title:"Team & collaboration", desc:""},
+      {title:"Growth & learning", desc:""}
     ],
     nonneg: [
-      {key:'movebreak', label:'At least one fully disengaged brain break'}
+      {key:'movebreak', label:'Movement break away from the desk'},
+      {key:'lunch', label:'Actual lunch break'},
+      {key:'wrapup', label:'Wrote tomorrow\'s top priority before logging off'},
+      {key:'water', label:'Water before coffee'}
     ],
     bonus: [
-      {key:'id0', label:'Delegate a task'}
+      {key:'deepwork', label:'One uninterrupted deep-work block'},
+      {key:'helped', label:'Helped a teammate'},
+      {key:'learned', label:'Learned something new'}
     ]
   }
 };
@@ -494,7 +467,6 @@ let dirHandle = null;
 let folderName = null;
 let settingsOpen = false;
 let historyOpen = false;
-let exportPickerOpen = false;
 let histYear, histMonth;
 let selectedDate = null;
 let historyEntries = [];
@@ -554,7 +526,7 @@ function renderBottomNav(){
   nav.classList.remove('hidden');
   backBtn.classList.toggle('invisible', step === 0);
   const isLast = step === totalSteps - 1;
-  nextBtn.textContent = isLast ? closingIcon() : '›';
+  nextBtn.textContent = isLast ? '✓' : '›';
   nextBtn.setAttribute('aria-label', isLast ? 'Save & close' : 'Continue');
   dots.innerHTML = Array.from({length: totalSteps}).map((_,i) => `<span class="${i===step ? 'active' : ''}"></span>`).join('');
 }
@@ -742,17 +714,6 @@ async function downloadExport(){
   document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
 }
-window.toggleExportPicker = function(){
-  exportPickerOpen = !exportPickerOpen;
-  renderSettings();
-};
-window.exportAs = async function(fmt){
-  settings.format = fmt;
-  scheduleSettingsSave();
-  exportPickerOpen = false;
-  await downloadExport();
-  renderSettings();
-};
 
 function isEntryShaped(obj){
   return obj && typeof obj === 'object' && ('highlight' in obj || 'stressor' in obj || 'nonneg' in obj || 'bonus' in obj);
@@ -872,23 +833,23 @@ function renderStep(){
 
   if(step === 0){
     card.innerHTML = `
-      <h1>${currentHighlightPrompt()}</h1>
+      <h1>${hp}</h1>
       <div class="field">
         <textarea id="highlight" placeholder="A sentence or two...">${entry.highlight || ''}</textarea>
       </div>
       <div class="field">
-        <label>${currentHighlightFollow()}</label>
+        <label>Describe how that made you feel — where did you feel it in your body?</label>
         <textarea id="highlightFeel" placeholder="A sentence or two...">${entry.highlightFeel || ''}</textarea>
       </div>
     `;
   } else if(step === 1){
     card.innerHTML = `
-      <h1>${currentStressorPrompt()}</h1>
+      <h1>${sp}</h1>
       <div class="field">
         <textarea id="stressor" placeholder="A sentence or two...">${entry.stressor || ''}</textarea>
       </div>
       <div class="field">
-        <label>${currentStressorFollow()}</label>
+        <label>Describe how that made you feel — where did you feel it in your body?</label>
         <textarea id="stressorFeel" placeholder="A sentence or two...">${entry.stressorFeel || ''}</textarea>
       </div>
     `;
@@ -912,17 +873,13 @@ function renderStep(){
     `;
   } else if(step === 4){
     card.innerHTML = `
-      <div class="saved-check"><div class="mark">${closingIcon()}</div></div>
-      <h1 style="text-align:center;">${closingHeading()}</h1>
+      <div class="saved-check"><div class="mark">✓</div></div>
+      <h1 style="text-align:center;">Day closed out</h1>
       <div class="summary-note">${entry.highlight ? entry.highlight : '<i>No highlight recorded.</i>'}</div>
-      ${finishedToday ? '' : `<p class="sub" style="text-align:center;">Tap ${closingIcon()} below to save and close.</p>`}
+      ${finishedToday ? '' : `<p class="sub" style="text-align:center;">Tap ✓ below to save and close.</p>`}
     `;
   }
 }
-
-function closingIcon(){ return currentMode === 'work' ? '🚪' : '✓'; }
-function closingHeading(){ return currentMode === 'work' ? "Close the door on your work day" : 'Day closed out'; }
-function finishedHeading(){ return currentMode === 'work' ? 'The door is closed.' : 'Tomorrow is a new day.'; }
 
 function captureFields(){
   if(step === 0){
@@ -944,8 +901,8 @@ window.finish = async function(){
   await saveTodayEntry();
   finishedToday = true;
   document.getElementById('card').innerHTML = `
-    <div class="saved-check"><div class="mark">${closingIcon()}</div></div>
-    <h1 style="text-align:center;">${finishedHeading()}</h1>
+    <div class="saved-check"><div class="mark">✓</div></div>
+    <h1 style="text-align:center;">Tomorrow is a new day.</h1>
     <p class="sub" style="text-align:center;">See you next time.</p>
   `;
   document.getElementById('footerNote').textContent = dirHandle ? `Saved to "${folderName}"` : 'Saved on this device.';
@@ -953,7 +910,7 @@ window.finish = async function(){
 };
 
 // ---------- Settings modal ----------
-function openSettings(){ settingsOpen = true; exportPickerOpen = false; hideBottomNav(); render(); }
+function openSettings(){ settingsOpen = true; hideBottomNav(); render(); }
 function closeSettingsUI(){ settingsOpen = false; render(); }
 window.closeSettings = async function(){
   await saveSettings();
@@ -970,6 +927,7 @@ function scheduleSettingsSave(){
   }, 500);
 }
 
+window.setFormat = function(fmt){ settings.format = fmt; scheduleSettingsSave(); renderSettings(); };
 window.connectFolderClick = async function(){
   const ok = await connectFolder();
   renderSettings();
@@ -1006,6 +964,25 @@ function renderSettings(){
       <button class="${currentMode==='work' ? 'active':''}" onclick="setMode('work')">💼 Work</button>
     </div>
 
+    <div class="section-title">Storage</div>
+    <div class="storage-status">
+      ${folderSupported()
+        ? (dirHandle ? `Saving to folder: <b>${folderName}</b>` : 'No folder connected yet — entries are still saved on this device.')
+        : 'Folder access is not available in this browser. Entries are saved on this device; use Export to get a file.'}
+      <br>Settings save automatically. JSON export/import is the full backup (settings + entries) for the current mode only; Markdown export is for reading only.
+    </div>
+    <div class="nav" style="justify-content:flex-start;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      ${folderSupported() ? (dirHandle
+        ? `<button class="btn-ghost" onclick="disconnectFolder()">Disconnect folder</button>`
+        : `<button class="btn-primary" onclick="connectFolderClick()">Choose folder</button>`) : ''}
+      <button class="btn-ghost" onclick="downloadExport()">Export now</button>
+    </div>
+
+    <div class="fmt-toggle">
+      <button class="${settings.format==='md' ? 'active':''}" onclick="setFormat('md')">Markdown (.md)</button>
+      <button class="${settings.format==='json' ? 'active':''}" onclick="setFormat('json')">JSON (.json)</button>
+    </div>
+
     <div class="section-title">Priorities</div>
     <div id="prioritiesList">
       ${settings.priorities.map((pr, idx) => `
@@ -1040,26 +1017,8 @@ function renderSettings(){
     </div>
     <button class="add-btn" onclick="addListItem('bonus')">+ Add bonus item</button>
 
-    <div class="section-title">Data</div>
-    <div class="storage-status">
-      ${folderSupported()
-        ? (dirHandle ? `Saving to folder: <b>${folderName}</b>` : 'No folder connected yet — entries are still saved on this device.')
-        : 'Folder access is not available in this browser. Entries are saved on this device; use Export to get a file.'}
-      <br>JSON export/import is the full backup (settings + entries) for the current mode only; Markdown export is for reading only.
-    </div>
-    <div class="nav" style="justify-content:flex-start;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
-      ${folderSupported() ? (dirHandle
-        ? `<button class="btn-ghost" onclick="disconnectFolder()">Disconnect folder</button>`
-        : `<button class="btn-primary" onclick="connectFolderClick()">Choose folder</button>`) : ''}
-      <button class="btn-ghost" onclick="toggleExportPicker()">Export</button>
-      <button class="btn-ghost" onclick="triggerImport()">Import backup</button>
-    </div>
-    ${exportPickerOpen ? `
-      <div class="fmt-toggle">
-        <button onclick="exportAs('md')">Markdown (.md)</button>
-        <button onclick="exportAs('json')">JSON (.json)</button>
-      </div>
-    ` : ''}
+    <div class="section-title">Import</div>
+    <button class="btn-ghost" onclick="triggerImport()">Import backup</button>
     <div id="importStatus" style="font-size:12px;color:var(--dim);min-height:16px;margin-top:6px;"></div>
 
     <div class="modal-nav">

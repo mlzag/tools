@@ -24,12 +24,9 @@ FEATURES
   separate per mode. A small "Home / Work" text toggle in the top-left
   of the header switches between them anytime; it defaults to
   whichever mode you used last.
-- Five-step flow: highlight, stressor/growth (each with a follow-up —
-  a body-awareness question in Home mode, "How can you resolve it?"
-  for the stressor in Work mode), priorities, non-negotiables,
-  close-out — with rotating prompt variations in Home mode and fixed,
-  generic prompts in Work mode ("What went well today?" / "What
-  happened today that didn't go the way you wanted?")
+- Five-step flow: highlight, stressor/growth (each with a "where did
+  you feel it" follow-up), priorities, non-negotiables, close-out —
+  with rotating prompt variations
 - Tap the date in the header to open a calendar History view: browse
   past months, tap any day with a dot to see that day's highlight and
   stressor, or scroll the full list of past entries below. Closes via
@@ -40,14 +37,9 @@ FEATURES
 - Date shown persistently and prominently in the header
 - Settings menu (gear icon): switch mode, rename or add/remove
   priorities and non-negotiables, choose export format, connect a
-  folder to save to, import a backup — Data controls (export, import,
-  folder) live at the bottom of the menu. Settings save automatically
-  as you type (no need to hit Done). A version tag sits at the very
+  folder to save to, import a backup. Settings save automatically as
+  you type (no need to hit Done). A version tag sits at the very
   bottom of Settings — handy for confirming a push has gone live.
-- Export is a single button that reveals a Markdown/JSON picklist —
-  tapping a format exports immediately in that format.
-- Work mode's close-out screen reads "Close the door on your work
-  day" with a door icon instead of a checkmark.
 - Entries save automatically per day, locally in your browser's storage
   (this only works once the app is loaded over http/https — see the
   storage note below)
