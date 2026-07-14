@@ -18,37 +18,25 @@ looks for manifest.json and icons/ right next to it.
 
 FEATURES
 ---------
-- Dual-purpose: Home mode (warm evening theme) and Work mode (bright,
-  cool blue theme). Entries and settings — priorities, non-negotiables,
-  bonus items, export format, folder connection — are kept completely
-  separate per mode. A small icon toggle in the bottom footer bar
-  switches between them anytime; it defaults to whichever mode you
-  used last.
-- Five-step flow: highlight, stressor/growth (each with a "where did
-  you feel it" follow-up), priorities, non-negotiables, close-out —
-  with rotating prompt variations
+- Five-step flow: highlight, stressor/growth, priorities, non-negotiables,
+  close-out — each with rotating prompt variations
 - Tap the date in the header to open a calendar History view: browse
   past months, tap any day with a dot to see that day's highlight and
-  stressor, or scroll the full list of past entries below. Closes via
-  the ✕ in the top-right corner.
+  stressor, or scroll the full list of past entries below
 - Swipe left/right (or tap the arrow icons) to move between steps
 - Minimal sticky footer nav with step dots — never overlaps content,
   and the middle of the screen scrolls independently if a step runs long
-- Date shown persistently and prominently in the header
-- Settings menu (gear icon): switch mode, rename or add/remove
-  priorities and non-negotiables, choose export format, connect a
-  folder to save to, import a backup. Settings save automatically as
-  you type (no need to hit Done). A version tag sits at the very
-  bottom of Settings — handy for confirming a push has gone live.
+- Date shown persistently in the header
+- Settings menu (gear icon): rename or add/remove priorities and
+  non-negotiables, choose export format, connect a folder to save to.
+  Settings save automatically as you type (no need to hit Done).
 - Entries save automatically per day, locally in your browser's storage
   (this only works once the app is loaded over http/https — see the
   storage note below)
-- JSON export/import is a full backup of the CURRENT mode only
-  (settings + all its entries) — use "Export now" to download it and
-  "Import backup" to restore it into whichever mode is active, e.g.
-  after clearing browser data or moving to a new device. Do an export
-  in both Home and Work mode if you want a full backup of both.
-  Markdown export is for reading only and can't be re-imported.
+- JSON export/import is a full backup (settings + all entries) — use
+  "Export now" to download it and "Import backup" to restore it, e.g.
+  after clearing browser data or moving to a new device. Markdown
+  export is for reading only and can't be re-imported.
 - Optional folder sync to a single reflections.md or reflections.json
   file (Chrome/Edge only — see below)
 - Installable as a home-screen app with a custom crescent-moon icon
