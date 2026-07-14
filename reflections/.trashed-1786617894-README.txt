@@ -21,9 +21,9 @@ FEATURES
 - Dual-purpose: Home mode (warm evening theme) and Work mode (bright,
   cool blue theme). Entries and settings — priorities, non-negotiables,
   bonus items, export format, folder connection — are kept completely
-  separate per mode. A small "Home / Work" text toggle in the top-left
-  of the header switches between them anytime; it defaults to
-  whichever mode you used last.
+  separate per mode. A small icon toggle in the bottom footer bar
+  switches between them anytime; it defaults to whichever mode you
+  used last.
 - Five-step flow: highlight, stressor/growth (each with a "where did
   you feel it" follow-up), priorities, non-negotiables, close-out —
   with rotating prompt variations
