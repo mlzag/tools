@@ -20,13 +20,23 @@ FEATURES
 ---------
 - Five-step flow: highlight, stressor/growth, priorities, non-negotiables,
   close-out — each with rotating prompt variations
+- Tap the date in the header to open a calendar History view: browse
+  past months, tap any day with a dot to see that day's highlight and
+  stressor, or scroll the full list of past entries below
 - Swipe left/right (or tap the arrow icons) to move between steps
 - Minimal sticky footer nav with step dots — never overlaps content,
   and the middle of the screen scrolls independently if a step runs long
 - Date shown persistently in the header
 - Settings menu (gear icon): rename or add/remove priorities and
-  non-negotiables, choose export format, connect a folder to save to
-- Entries save automatically per day, locally in the browser
+  non-negotiables, choose export format, connect a folder to save to.
+  Settings save automatically as you type (no need to hit Done).
+- Entries save automatically per day, locally in your browser's storage
+  (this only works once the app is loaded over http/https — see the
+  storage note below)
+- JSON export/import is a full backup (settings + all entries) — use
+  "Export now" to download it and "Import backup" to restore it, e.g.
+  after clearing browser data or moving to a new device. Markdown
+  export is for reading only and can't be re-imported.
 - Optional folder sync to a single reflections.md or reflections.json
   file (Chrome/Edge only — see below)
 - Installable as a home-screen app with a custom crescent-moon icon
@@ -50,6 +60,18 @@ WITHOUT HOSTING
   You can still open index.html directly on your phone — the tool
   works the same. You just won't get the custom moon icon; it'll use
   your browser's default bookmark icon instead.
+
+WHERE YOUR DATA LIVES
+-----------------------
+Entries and settings are saved in your browser's local storage for
+whatever URL you open the app at. That means:
+  - Persistence requires opening it as a real page (http/https), not
+    a raw local file — same requirement as the home-screen icon above.
+  - Data is tied to that specific browser + URL. Opening it in a
+    different browser, in private/incognito mode, or after clearing
+    site data will show a fresh, empty app.
+  - Because of this, it's worth doing an occasional "Export now" from
+    Settings to keep a backup you can restore with "Import backup."
 
 FOLDER-SYNC STORAGE NOTE
 --------------------------

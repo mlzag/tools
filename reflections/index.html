@@ -504,10 +504,26 @@ function initFloatingShapes(){
 }
 
 // ---------- Storage ----------
-async function safeGet(key){
-  try{ const res = await window.storage.get(key); return res ? res.value : null; }catch(e){ return null; }
+// window.storage is Claude.ai's artifact-preview API — it doesn't exist once this
+// is hosted as a real site (e.g. GitHub Pages). Everything falls back to the
+// browser's own localStorage in that case, which is what actually persists
+// across closing/reopening the app.
+function hasArtifactStorage(){
+  return typeof window !== 'undefined' && !!window.storage &&
+    typeof window.storage.get === 'function' && typeof window.storage.set === 'function';
 }
-async function safeSet(key, value){ try{ await window.storage.set(key, value); }catch(e){} }
+async function safeGet(key){
+  if(hasArtifactStorage()){
+    try{ const res = await window.storage.get(key); return res ? res.value : null; }catch(e){ /* fall through */ }
+  }
+  try{ return localStorage.getItem(key); }catch(e){ return null; }
+}
+async function safeSet(key, value){
+  if(hasArtifactStorage()){
+    try{ await window.storage.set(key, value); return; }catch(e){ /* fall through */ }
+  }
+  try{ localStorage.setItem(key, value); }catch(e){ /* non-fatal */ }
+}
 
 async function loadSettings(){
   const raw = await safeGet(SETTINGS_KEY);
@@ -530,12 +546,25 @@ async function saveTodayEntry(){
 }
 async function getAllEntries(){
   const out = [];
+  if(hasArtifactStorage()){
+    try{
+      const listing = await window.storage.list(ENTRY_PREFIX, false);
+      const keys = (listing && listing.keys) ? listing.keys : [];
+      for(const k of keys){
+        const raw = await safeGet(k);
+        if(raw){ try{ out.push({ date: k.replace(ENTRY_PREFIX,''), data: JSON.parse(raw) }); }catch(e){} }
+      }
+      out.sort((a,b) => a.date.localeCompare(b.date));
+      return out;
+    }catch(e){ /* fall through to localStorage */ }
+  }
   try{
-    const listing = await window.storage.list(ENTRY_PREFIX, false);
-    const keys = (listing && listing.keys) ? listing.keys : [];
-    for(const k of keys){
-      const raw = await safeGet(k);
-      if(raw){ try{ out.push({ date: k.replace(ENTRY_PREFIX,''), data: JSON.parse(raw) }); }catch(e){} }
+    for(let i = 0; i < localStorage.length; i++){
+      const k = localStorage.key(i);
+      if(k && k.indexOf(ENTRY_PREFIX) === 0){
+        const raw = localStorage.getItem(k);
+        if(raw){ try{ out.push({ date: k.replace(ENTRY_PREFIX,''), data: JSON.parse(raw) }); }catch(e){} }
+      }
     }
   }catch(e){}
   out.sort((a,b) => a.date.localeCompare(b.date));
