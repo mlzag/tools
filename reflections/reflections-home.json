@@ -1,0 +1,56 @@
+{
+  "settings": {
+    "format": "json",
+    "priorities": [
+      {
+        "title": "Physical health",
+        "desc": "Nothing matters if you're dead"
+      },
+      {
+        "title": "Mental health",
+        "desc": "You can't pour from an empty cup"
+      },
+      {
+        "title": "Family",
+        "desc": "You are Myles' role model"
+      },
+      {
+        "title": "Creativity & learning",
+        "desc": "Aim for personal growth"
+      }
+    ],
+    "nonneg": [
+      {
+        "key": "nature",
+        "label": "20 minutes outside"
+      },
+      {
+        "key": "water",
+        "label": "Water before coffee"
+      },
+      {
+        "key": "pups",
+        "label": "Snuggles with Myles"
+      },
+      {
+        "key": "myles",
+        "label": "Snuggles with the pups"
+      }
+    ],
+    "bonus": [
+      {
+        "key": "facetime",
+        "label": "Face time and/or reading with Myles"
+      },
+      {
+        "key": "meal",
+        "label": "Healthy meal"
+      },
+      {
+        "key": "gratitude",
+        "label": "Practice gratitude"
+      }
+    ]
+  },
+  "entries": {}
+}
