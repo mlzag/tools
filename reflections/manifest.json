@@ -1,7 +1,7 @@
 {
   "name": "Evening Reflection",
   "short_name": "Reflection",
-  "description": "A quiet evening wind-down ritual: reflect on your day and refocus on your priorities.",
+  "description": "A wind-down ritual: reflect on your day and refocus on your priorities.",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
