@@ -1,0 +1,36 @@
+{
+  "settings": {
+    "format": "json",
+    "priorities": [
+      {
+        "title": "Give 75% without compromising your health",
+        "desc": "Is this worth the cost of your sanity?"
+      },
+      {
+        "title": "Focus on what you can control",
+        "desc": "What's your role?"
+      },
+      {
+        "title": "Teach and empower others to help themselves",
+        "desc": "What's the worst that will happen if I don't do it?"
+      },
+      {
+        "title": "Be kind and professional",
+        "desc": ""
+      }
+    ],
+    "nonneg": [
+      {
+        "key": "movebreak",
+        "label": "At least one fully disengaged brain break"
+      }
+    ],
+    "bonus": [
+      {
+        "key": "id0",
+        "label": "Delegate a task"
+      }
+    ]
+  },
+  "entries": {}
+}
