@@ -4,16 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Evening Reflection</title>
-<meta name="theme-color" content="#12101F">
-<meta name="description" content="A quiet daily reflection ritual for home and work — track your day and refocus on your priorities.">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Reflection">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=DM+Sans:wght@400;500;700&display=swap');
 
@@ -750,17 +740,22 @@ async function importFromParsed(parsed){
   }
 
   let count = 0;
+  let failed = 0;
   for(const [dstr, data] of Object.entries(entriesObj)){
     if(!/^\d{4}-\d{2}-\d{2}$/.test(dstr)) continue;
     if(!isEntryShaped(data)) continue;
-    await safeSet(entryPrefix() + dstr, JSON.stringify(data));
-    count++;
+    const key = entryPrefix() + dstr;
+    await safeSet(key, JSON.stringify(data));
+    const check = await safeGet(key);
+    if(check){ count++; } else { failed++; }
   }
 
   syncEntryKeys();
   await loadToday();
+  historyEntries = await getAllEntries();
+  if(historyOpen) renderHistory();
   writeToFolderIfConnected();
-  return count;
+  return { count, failed };
 }
 
 window.triggerImport = function(){
@@ -770,16 +765,43 @@ window.handleImportFile = async function(evt){
   const file = evt.target.files && evt.target.files[0];
   evt.target.value = ''; // allow re-selecting the same file later
   if(!file) return;
-  const statusEl = document.getElementById('importStatus');
+
+  let message = '';
+  let isError = false;
+
   try{
     const text = await file.text();
-    const parsed = JSON.parse(text);
-    const count = await importFromParsed(parsed);
-    if(statusEl){ statusEl.textContent = `Imported ${count} entr${count === 1 ? 'y' : 'ies'}${parsed.settings ? ' and settings' : ''} into ${currentTheme().label} mode.`; statusEl.style.color = '#4FD9C4'; }
+    let parsed;
+    try{
+      parsed = JSON.parse(text);
+    }catch(parseErr){
+      throw new Error(`"${file.name}" isn't valid JSON — Markdown exports can't be re-imported, only .json backups.`);
+    }
+    const { count, failed } = await importFromParsed(parsed);
+    if(count === 0 && failed === 0){
+      message = 'No dated entries were found in that file.';
+      isError = true;
+    } else if(failed > 0){
+      message = `Imported ${count} entr${count === 1 ? 'y' : 'ies'}, but ${failed} failed to save — your browser may be blocking storage (e.g. private browsing).`;
+      isError = true;
+    } else {
+      message = `✓ Imported ${count} entr${count === 1 ? 'y' : 'ies'}${parsed.settings ? ' and settings' : ''} into ${currentTheme().label} mode.`;
+      isError = false;
+    }
   }catch(e){
-    if(statusEl){ statusEl.textContent = 'Import failed — make sure this is a .json backup exported from this app.'; statusEl.style.color = '#E8895A'; }
+    message = e.message || 'Import failed — make sure this is a .json backup exported from this app.';
+    isError = true;
   }
+
+  // renderSettings() rebuilds the whole card, so the status element must be
+  // filled in AFTER that rebuild — setting it before gets immediately wiped out.
   renderSettings();
+  const statusEl = document.getElementById('importStatus');
+  if(statusEl){
+    statusEl.textContent = message;
+    statusEl.style.color = isError ? '#E8895A' : '#4FD9C4';
+    statusEl.scrollIntoView({behavior:'smooth', block:'center'});
+  }
 };
 
 // ---------- Toggle helper ----------
