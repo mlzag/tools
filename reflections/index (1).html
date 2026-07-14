@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evening Reflection</title>
+<meta name="theme-color" content="#12101F">
+<meta name="description" content="A quiet evening wind-down ritual: reflect on your day and refocus on your priorities.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Reflection">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800;900&family=DM+Sans:wght@400;500;700&display=swap');
+
+  :root{
+    --bg:#12101F;
+    --fg:#F5F1FF;
+    --muted:#241938;
+    --dim:#B8AECF;
+    --accent: #C94FC2;
+    --accent2: #E8D24F;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'DM Sans',sans-serif;
+    color:var(--fg);
+    height:100vh;
+    height:100dvh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    background:var(--bg);
+    position:relative;
+    overflow:hidden;
+  }
+
+  /* ---- ambient background layers ---- */
+  .bg-patterns{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px),
+      radial-gradient(ellipse at 20% 25%, rgba(201,79,194,0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 75%, rgba(79,217,196,0.08) 0%, transparent 50%);
+    background-size: 34px 34px, auto, auto;
+  }
+  .bg-word{
+    position:fixed;
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    font-family:'Unbounded',sans-serif;
+    font-weight:900;
+    font-size:min(26vw,220px);
+    letter-spacing:-0.02em;
+    color:var(--accent);
+    opacity:0.055;
+    white-space:nowrap;
+    z-index:0;pointer-events:none;
+    transition:color 0.9s ease;
+    user-select:none;
+  }
+  .float-shape{
+    position:fixed;border-radius:50%;z-index:0;pointer-events:none;
+    opacity:0.35;filter:blur(0.5px);
+    animation:drift 9s ease-in-out infinite;
+  }
+  @keyframes drift{
+    0%,100%{transform:translateY(0px);}
+    50%{transform:translateY(-16px);}
+  }
+
+  .app-shell{
+    max-width:480px;width:100%;height:100%;
+    display:flex;flex-direction:column;
+    position:relative;z-index:2;
+  }
+  .app-header{
+    flex:0 0 auto;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:20px 24px 4px;
+  }
+  .date-chip{
+    font-family:'Unbounded',sans-serif;font-weight:800;font-size:16px;
+    letter-spacing:-0.01em;color:var(--fg);cursor:pointer;
+    background:none;border:none;padding:0;transition:opacity 0.2s ease;
+  }
+  .date-chip:hover{opacity:0.75;}
+  .gear{
+    background:var(--muted);border:2px solid var(--accent2);cursor:pointer;
+    color:var(--dim);font-size:16px;padding:8px 10px;line-height:1;
+    border-radius:999px;transition:transform 0.2s ease, color 0.2s ease;
+  }
+  .gear:hover{color:var(--fg);transform:rotate(25deg);}
+
+  .app-scroll{
+    flex:1 1 auto;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding:4px 24px 28px;
+  }
+
+  .arc{width:100%;height:56px;position:relative;margin-bottom:2px;}
+  .arc svg{width:100%;height:100%;display:block;}
+  .orb{transition:cx 0.8s cubic-bezier(.4,0,.2,1), cy 0.8s cubic-bezier(.4,0,.2,1), fill 0.6s ease;}
+
+  .step-label{
+    text-align:center;font-family:'Unbounded',sans-serif;font-weight:700;
+    font-size:11px;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--dim);margin-bottom:20px;
+  }
+
+  .card{
+    background:rgba(36,25,56,0.72);
+    backdrop-filter:blur(8px);
+    border:3px solid var(--accent);
+    border-radius:26px;
+    padding:32px 26px;
+    position:relative;
+    transform:rotate(-0.4deg);
+    box-shadow:
+      0 0 30px rgba(201,79,194,0.18),
+      5px 5px 0 var(--accent2),
+      10px 10px 0 rgba(255,255,255,0.05);
+    transition:border-color 0.6s ease, box-shadow 0.6s ease;
+  }
+  .card::after{
+    content:'';position:absolute;top:-3px;right:36px;
+    width:14px;height:14px;border-radius:50%;
+    background:var(--accent2);box-shadow:0 0 12px var(--accent2);
+  }
+  .close-x{
+    position:absolute;top:20px;right:20px;
+    background:none;border:none;color:var(--dim);font-size:20px;line-height:1;
+    padding:6px;border-radius:8px;cursor:pointer;transition:color 0.2s ease, background 0.2s ease;
+  }
+  .close-x:hover{color:var(--fg);background:rgba(255,255,255,0.06);}
+
+  h1{
+    font-family:'Unbounded',sans-serif;font-weight:800;font-size:23px;line-height:1.22;
+    margin:0 0 8px;color:var(--fg);
+    text-shadow:2px 2px 0 rgba(0,0,0,0.35);
+  }
+  h2{font-family:'Unbounded',sans-serif;font-weight:800;font-size:19px;margin:0 0 18px;color:var(--fg);}
+  .sub{font-size:13px;color:var(--dim);margin:0 0 20px;}
+
+  textarea{
+    width:100%;min-height:76px;
+    background:rgba(0,0,0,0.22);
+    border:2.5px dashed rgba(255,255,255,0.22);
+    border-radius:16px;color:var(--fg);
+    font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;
+    padding:13px 15px;resize:vertical;outline:none;
+    transition:border-color 0.25s ease, background 0.25s ease;
+  }
+  textarea:focus{border-color:var(--accent2);border-style:solid;background:rgba(0,0,0,0.32);}
+  textarea::placeholder{color:rgba(245,241,255,0.32);}
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-size:12.5px;font-weight:700;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;}
+
+  .nav{display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:10px;}
+  button{
+    font-family:'DM Sans',sans-serif;font-weight:700;font-size:13.5px;border:none;
+    cursor:pointer;transition:transform 0.15s ease, box-shadow 0.2s ease, opacity 0.15s ease;
+  }
+  button:active{transform:scale(0.95);}
+  .btn-primary{
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    color:#191225;border-radius:999px;padding:12px 24px;
+    text-transform:uppercase;letter-spacing:0.05em;
+    box-shadow:0 0 18px rgba(201,79,194,0.35), 4px 4px 0 rgba(0,0,0,0.25);
+  }
+  .btn-primary:hover{box-shadow:0 0 26px rgba(201,79,194,0.5), 5px 5px 0 rgba(0,0,0,0.3);}
+  .btn-ghost{background:transparent;color:var(--dim);padding:10px 6px;text-transform:uppercase;letter-spacing:0.05em;font-size:13px;}
+  .btn-ghost:hover{color:var(--fg);}
+  .btn-text{background:none;color:var(--dim);font-weight:600;font-size:12.5px;padding:8px 4px;text-decoration:underline;}
+  .btn-text:hover{color:var(--fg);}
+
+  .priorities{list-style:none;padding:0;margin:0 0 6px;}
+  .priorities li{
+    display:flex;gap:12px;align-items:flex-start;padding:12px 4px;
+    border-bottom:2px dotted rgba(255,255,255,0.14);
+  }
+  .priorities li:last-child{border-bottom:none;}
+  .p-num{
+    font-family:'Unbounded',sans-serif;font-weight:800;font-size:14px;min-width:26px;height:26px;
+    display:flex;align-items:center;justify-content:center;border-radius:50%;
+    background:var(--accent);color:#191225;
+  }
+  .priorities li:nth-child(2) .p-num{background:var(--accent2);}
+  .priorities li:nth-child(3) .p-num{background:#4FD9C4;}
+  .p-text b{display:block;font-size:15px;color:var(--fg);}
+  .p-text span{font-size:12.5px;color:var(--dim);}
+
+  .toggle-row{display:flex;justify-content:space-between;align-items:center;padding:11px 2px;border-bottom:1px solid rgba(255,255,255,0.09);}
+  .toggle-row:last-child{border-bottom:none;}
+  .toggle-row span{font-size:14px;font-weight:500;}
+  .yn{display:flex;gap:7px;}
+  .yn button{
+    padding:7px 15px;font-size:12.5px;border-radius:999px;
+    background:rgba(255,255,255,0.06);color:var(--dim);
+    border:2px solid rgba(255,255,255,0.12);
+  }
+  .yn button.active-y{background:#4FD9C4;color:#0F2620;border-color:#4FD9C4;box-shadow:0 0 12px rgba(79,217,196,0.4);}
+  .yn button.active-n{background:rgba(255,255,255,0.16);color:var(--fg);border-color:rgba(255,255,255,0.3);}
+  .bonus-label{font-family:'Unbounded',sans-serif;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent2);margin:20px 0 4px;}
+
+  .summary-note{
+    font-size:13.5px;color:var(--dim);line-height:1.6;
+    background:rgba(0,0,0,0.22);border-radius:14px;padding:14px 16px;margin-bottom:18px;
+    border:2px dashed rgba(255,255,255,0.15);
+  }
+  .saved-check{text-align:center;padding:14px 0 6px;}
+  .saved-check .mark{
+    font-size:38px;color:#4FD9C4;
+    text-shadow:0 0 18px rgba(79,217,196,0.5);
+  }
+  .footer-note{text-align:center;font-size:11.5px;color:rgba(245,241,255,0.4);margin-top:16px;min-height:16px;position:relative;z-index:2;}
+
+  /* ---- sticky footer nav (minimal, icon-only) ---- */
+  .app-footer{
+    flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;gap:24px;
+    padding:10px 24px calc(10px + env(safe-area-inset-bottom, 0px));
+    border-top:1px solid rgba(255,255,255,0.08);
+    transition:border-color 0.6s ease;
+  }
+  .app-footer.hidden{display:none;}
+  .nav-icon-btn{
+    background:none;border:none;color:var(--dim);font-size:22px;line-height:1;
+    padding:8px 10px;border-radius:8px;cursor:pointer;
+    transition:color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+  }
+  .nav-icon-btn:hover{color:var(--fg);background:rgba(255,255,255,0.06);}
+  .nav-icon-btn.invisible{opacity:0;pointer-events:none;}
+  .nav-icon-btn.primary{color:var(--accent2);}
+  .nav-dots{display:flex;gap:6px;padding:0 2px;}
+  .nav-dots span{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.18);transition:background 0.3s ease, transform 0.3s ease;display:inline-block;}
+  .nav-dots span.active{background:var(--accent2);transform:scale(1.4);}
+
+  /* ---- Settings modal ---- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(10,8,18,0.65);
+    display:flex;align-items:center;justify-content:center;padding:20px;z-index:10;
+  }
+  .modal{
+    background:#1B1530;border:3px solid var(--accent);border-radius:24px;
+    max-width:440px;width:100%;max-height:85vh;overflow-y:auto;overflow-x:hidden;padding:26px 24px;
+    box-shadow:0 0 30px rgba(201,79,194,0.2), 6px 6px 0 var(--accent2);
+  }
+  .modal h2{margin-bottom:4px;font-family:'Unbounded',sans-serif;}
+  .modal .sub{margin-bottom:18px;}
+  .section-title{
+    font-family:'Unbounded',sans-serif;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;
+    color:var(--accent2);margin:20px 0 10px;
+  }
+  .section-title:first-of-type{margin-top:0;}
+  .storage-status{font-size:13px;color:var(--dim);margin-bottom:10px;line-height:1.5;}
+  .fmt-toggle{display:flex;gap:8px;margin-bottom:14px;}
+  .fmt-toggle button{flex:1;background:rgba(255,255,255,0.06);color:var(--dim);padding:9px;font-size:12.5px;border-radius:999px;border:2px solid transparent;}
+  .fmt-toggle button.active{background:var(--accent);color:#191225;border-color:var(--accent2);}
+  .edit-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px;}
+  .edit-row input{
+    flex:1 1 110px;min-width:0;background:rgba(0,0,0,0.22);border:2px solid rgba(255,255,255,0.14);
+    border-radius:10px;color:var(--fg);font-size:13.5px;padding:8px 10px;font-family:'DM Sans',sans-serif;
+    box-sizing:border-box;
+  }
+  .edit-row input:focus{outline:none;border-color:var(--accent2);}
+  .icon-btn{
+    background:rgba(255,255,255,0.06);color:var(--dim);border-radius:10px;
+    padding:8px 10px;font-size:13px;line-height:1;
+  }
+  .icon-btn:hover{color:var(--fg);}
+  .add-btn{background:none;color:#4FD9C4;font-size:12.5px;font-weight:700;padding:6px 2px;}
+  .modal-nav{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
+
+  /* ---- History / calendar view ---- */
+  .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .cal-header button{background:none;border:none;color:var(--dim);font-size:18px;padding:6px 10px;border-radius:8px;cursor:pointer;}
+  .cal-header button:hover{color:var(--fg);background:rgba(255,255,255,0.06);}
+  .cal-title{font-family:'Unbounded',sans-serif;font-weight:700;font-size:13px;letter-spacing:0.05em;color:var(--fg);text-transform:uppercase;}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:18px;}
+  .cal-dow{text-align:center;font-size:10px;color:var(--dim);font-weight:700;letter-spacing:0.05em;padding-bottom:4px;}
+  .cal-day{
+    position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+    border-radius:10px;font-size:12.5px;color:var(--dim);cursor:pointer;background:transparent;border:none;
+    font-family:'DM Sans',sans-serif;transition:background 0.15s ease, color 0.15s ease;
+  }
+  .cal-day:hover{background:rgba(255,255,255,0.06);color:var(--fg);}
+  .cal-day.empty{cursor:default;pointer-events:none;}
+  .cal-day.today{color:var(--fg);font-weight:700;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,0.25);}
+  .cal-day.selected{background:var(--accent);color:#191225;font-weight:700;}
+  .cal-day .dot{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--accent2);}
+  .cal-day.selected .dot{background:#191225;}
+
+  .day-detail{
+    background:rgba(0,0,0,0.2);border:2px dashed rgba(255,255,255,0.14);border-radius:14px;
+    padding:14px 16px;margin-bottom:18px;
+  }
+  .dd-date{font-family:'Unbounded',sans-serif;font-weight:700;font-size:12px;color:var(--accent2);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;}
+  .dd-row{margin-bottom:8px;}
+  .dd-row:last-of-type{margin-bottom:10px;}
+  .dd-label{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px;}
+  .dd-text{font-size:13.5px;color:var(--fg);line-height:1.5;}
+  .dd-empty{font-size:13px;color:var(--dim);font-style:italic;}
+  .dd-tally{font-size:12px;color:var(--dim);}
+
+  .entry-list{display:flex;flex-direction:column;gap:2px;max-height:220px;overflow-y:auto;}
+  .entry-row{
+    display:flex;justify-content:flex-start;align-items:center;gap:12px;
+    padding:10px 4px;border-bottom:1px solid rgba(255,255,255,0.08);
+    background:none;border-left:none;border-right:none;border-top:none;
+    cursor:pointer;text-align:left;width:100%;font-family:'DM Sans',sans-serif;
+  }
+  .entry-row:last-child{border-bottom:none;}
+  .entry-row:hover{background:rgba(255,255,255,0.05);}
+  .entry-date{font-size:11.5px;color:var(--dim);flex-shrink:0;width:56px;font-weight:700;}
+  .entry-snippet{font-size:13px;color:var(--fg);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .entry-empty-note{font-size:13px;color:var(--dim);font-style:italic;padding:12px 0;}
+</style>
+</head>
+<body>
+<div class="bg-patterns"></div>
+<div class="bg-word" id="bgWord">PAUSE</div>
+<div id="floatLayer"></div>
+
+<div class="app-shell">
+  <div class="app-header">
+    <button class="date-chip" id="dateChip" onclick="openHistory()"></button>
+    <button class="gear" id="gearBtn" title="Settings">⚙</button>
+  </div>
+
+  <div class="app-scroll">
+    <div class="arc">
+      <svg viewBox="0 0 400 64" preserveAspectRatio="none">
+        <path d="M 20 60 Q 200 -10 380 60" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" fill="none"/>
+        <circle id="orb" class="orb" cx="20" cy="60" r="7" fill="#C94FC2"/>
+      </svg>
+    </div>
+    <div class="step-label" id="stepLabel">Step 1 of 5</div>
+    <div class="card" id="card"></div>
+    <div class="footer-note" id="footerNote"></div>
+  </div>
+
+  <div class="app-footer" id="bottomNav">
+    <button class="nav-icon-btn" id="navBack" onclick="back()" aria-label="Back">‹</button>
+    <div class="nav-dots" id="navDots"></div>
+    <button class="nav-icon-btn primary" id="navNext" onclick="handleNextClick()" aria-label="Continue">›</button>
+  </div>
+</div>
+
+<input type="file" id="importFile" accept="application/json,.json" style="display:none" onchange="handleImportFile(event)">
+
+<script>
+const SETTINGS_KEY = 'reflection:settings';
+const ENTRY_PREFIX = 'reflection:entry:';
+const today = new Date();
+const dateKey = today.toISOString().slice(0,10);
+const dateLabel = today.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'});
+
+const highlightPrompts = [
+  "What was the highlight of your day?",
+  "What went well today?",
+  "What's one moment today you'd want to relive?"
+];
+const stressorPrompts = [
+  "What was a stressor for you today?",
+  "What do you wish you'd done differently today?",
+  "What happened today that could be an opportunity for growth?"
+];
+const hp = highlightPrompts[today.getDate() % highlightPrompts.length];
+const sp = stressorPrompts[today.getDate() % stressorPrompts.length];
+
+// toned-down maximalist accent rotation (one per step)
+const ACCENTS = ['#C94FC2', '#4FD9C4', '#E8D24F', '#E8895A', '#9B6FE0'];
+const CLASH   = ['#E8D24F', '#9B6FE0', '#C94FC2', '#4FD9C4', '#E8895A']; // paired clash color per step
+const BG_WORDS = ['SHINE', 'RELEASE', 'FOCUS', 'GROUND', 'REST'];
+
+const DEFAULT_SETTINGS = {
+  format: 'md',
+  priorities: [
+    {title:"Physical & mental health", desc:"You can't pour from an empty cup."},
+    {title:"Family", desc:"Myles, Josh, the pups."},
+    {title:"Creativity & learning", desc:""}
+  ],
+  nonneg: [
+    {key:'nature', label:'Nature, 20 min'},
+    {key:'water', label:'Water before coffee'},
+    {key:'pups', label:'Snuggles with the pups'},
+    {key:'myles', label:'Snuggles with Myles'}
+  ],
+  bonus: [
+    {key:'facetime', label:'FaceTime and/or reading with Myles'},
+    {key:'meal', label:'Healthy meal'},
+    {key:'gratitude', label:'Gratitude for Josh / life'}
+  ]
+};
+
+let settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+let entry = { highlight:'', highlightFeel:'', stressor:'', stressorFeel:'', nonneg:{}, bonus:{} };
+let step = 0;
+const totalSteps = 5;
+let dirHandle = null;
+let folderName = null;
+let settingsOpen = false;
+let historyOpen = false;
+let histYear, histMonth;
+let selectedDate = null;
+let historyEntries = [];
+let uid = 0;
+const newId = () => 'id' + (uid++);
+
+function syncEntryKeys(){
+  const nn = {};
+  settings.nonneg.forEach(i => nn[i.key] = (entry.nonneg && i.key in entry.nonneg) ? entry.nonneg[i.key] : null);
+  entry.nonneg = nn;
+  const bn = {};
+  settings.bonus.forEach(i => bn[i.key] = (entry.bonus && i.key in entry.bonus) ? entry.bonus[i.key] : null);
+  entry.bonus = bn;
+}
+
+// ---------- ambient chrome (arc, background word, floating shapes) ----------
+function orbPos(s){
+  const pts = [{x:20,y:60},{x:110,y:14},{x:200,y:-2},{x:290,y:14},{x:380,y:60}];
+  return pts[s];
+}
+function setAccentVars(idx){
+  const a = ACCENTS[idx] || ACCENTS[0];
+  const c = CLASH[idx] || CLASH[0];
+  document.documentElement.style.setProperty('--accent', a);
+  document.documentElement.style.setProperty('--accent2', c);
+  const orb = document.getElementById('orb');
+  if(orb) orb.setAttribute('fill', a);
+  const bw = document.getElementById('bgWord');
+  if(bw){ bw.textContent = BG_WORDS[idx] || 'PAUSE'; bw.style.color = a; }
+}
+function updateChrome(){
+  const p = orbPos(step);
+  document.getElementById('orb').setAttribute('cx', p.x);
+  document.getElementById('orb').setAttribute('cy', p.y);
+  document.getElementById('stepLabel').textContent = `Step ${step+1} of ${totalSteps}`;
+  setAccentVars(step);
+  renderBottomNav();
+}
+function renderBottomNav(){
+  const nav = document.getElementById('bottomNav');
+  const backBtn = document.getElementById('navBack');
+  const nextBtn = document.getElementById('navNext');
+  const dots = document.getElementById('navDots');
+  if(!nav) return;
+  nav.classList.remove('hidden');
+  backBtn.classList.toggle('invisible', step === 0);
+  const isLast = step === totalSteps - 1;
+  nextBtn.textContent = isLast ? '✓' : '›';
+  nextBtn.setAttribute('aria-label', isLast ? 'Save & close' : 'Continue');
+  dots.innerHTML = Array.from({length: totalSteps}).map((_,i) => `<span class="${i===step ? 'active' : ''}"></span>`).join('');
+}
+window.handleNextClick = function(){
+  if(step === totalSteps - 1){ finish(); } else { next(); }
+};
+function hideBottomNav(){
+  const nav = document.getElementById('bottomNav');
+  if(nav) nav.classList.add('hidden');
+}
+
+// ---------- swipe between steps ----------
+let touchStartX = 0, touchStartY = 0;
+function initSwipe(){
+  const card = document.getElementById('card');
+  card.addEventListener('touchstart', e => {
+    if(settingsOpen) return;
+    const t = e.changedTouches[0];
+    touchStartX = t.clientX; touchStartY = t.clientY;
+  }, {passive:true});
+  card.addEventListener('touchend', e => {
+    if(settingsOpen) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartX;
+    const dy = t.clientY - touchStartY;
+    if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5){
+      if(dx < 0){ handleNextClick(); } else { back(); }
+    }
+  }, {passive:true});
+}
+function initFloatingShapes(){
+  const layer = document.getElementById('floatLayer');
+  const specs = [
+    {top:'8%', left:'6%', size:22, color:ACCENTS[0], delay:'0s'},
+    {top:'18%', left:'88%', size:14, color:ACCENTS[1], delay:'1.5s'},
+    {top:'70%', left:'4%', size:18, color:ACCENTS[2], delay:'0.7s'},
+    {top:'82%', left:'92%', size:26, color:ACCENTS[3], delay:'2.2s'},
+    {top:'46%', left:'94%', size:12, color:ACCENTS[4], delay:'1s'},
+    {top:'40%', left:'2%', size:10, color:ACCENTS[1], delay:'2.8s'}
+  ];
+  layer.innerHTML = specs.map(s => `
+    <div class="float-shape" style="top:${s.top};left:${s.left};width:${s.size}px;height:${s.size}px;background:${s.color};animation-delay:${s.delay};"></div>
+  `).join('');
+}
+
+// ---------- Storage ----------
+// window.storage is Claude.ai's artifact-preview API — it doesn't exist once this
+// is hosted as a real site (e.g. GitHub Pages). Everything falls back to the
+// browser's own localStorage in that case, which is what actually persists
+// across closing/reopening the app.
+function hasArtifactStorage(){
+  return typeof window !== 'undefined' && !!window.storage &&
+    typeof window.storage.get === 'function' && typeof window.storage.set === 'function';
+}
+async function safeGet(key){
+  if(hasArtifactStorage()){
+    try{ const res = await window.storage.get(key); return res ? res.value : null; }catch(e){ /* fall through */ }
+  }
+  try{ return localStorage.getItem(key); }catch(e){ return null; }
+}
+async function safeSet(key, value){
+  if(hasArtifactStorage()){
+    try{ await window.storage.set(key, value); return; }catch(e){ /* fall through */ }
+  }
+  try{ localStorage.setItem(key, value); }catch(e){ /* non-fatal */ }
+}
+
+async function loadSettings(){
+  const raw = await safeGet(SETTINGS_KEY);
+  if(raw){
+    try{
+      const parsed = JSON.parse(raw);
+      settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), parsed);
+    }catch(e){}
+  }
+}
+async function saveSettings(){ await safeSet(SETTINGS_KEY, JSON.stringify(settings)); }
+async function loadToday(){
+  const raw = await safeGet(ENTRY_PREFIX + dateKey);
+  if(raw){ try{ entry = Object.assign(entry, JSON.parse(raw)); }catch(e){} }
+  syncEntryKeys();
+}
+async function saveTodayEntry(){
+  await safeSet(ENTRY_PREFIX + dateKey, JSON.stringify(entry));
+  writeToFolderIfConnected();
+}
+async function getAllEntries(){
+  const out = [];
+  if(hasArtifactStorage()){
+    try{
+      const listing = await window.storage.list(ENTRY_PREFIX, false);
+      const keys = (listing && listing.keys) ? listing.keys : [];
+      for(const k of keys){
+        const raw = await safeGet(k);
+        if(raw){ try{ out.push({ date: k.replace(ENTRY_PREFIX,''), data: JSON.parse(raw) }); }catch(e){} }
+      }
+      out.sort((a,b) => a.date.localeCompare(b.date));
+      return out;
+    }catch(e){ /* fall through to localStorage */ }
+  }
+  try{
+    for(let i = 0; i < localStorage.length; i++){
+      const k = localStorage.key(i);
+      if(k && k.indexOf(ENTRY_PREFIX) === 0){
+        const raw = localStorage.getItem(k);
+        if(raw){ try{ out.push({ date: k.replace(ENTRY_PREFIX,''), data: JSON.parse(raw) }); }catch(e){} }
+      }
+    }
+  }catch(e){}
+  out.sort((a,b) => a.date.localeCompare(b.date));
+  return out;
+}
+
+// ---------- Folder / file export ----------
+function folderSupported(){ return typeof window.showDirectoryPicker === 'function'; }
+async function connectFolder(){
+  if(!folderSupported()) return false;
+  try{
+    dirHandle = await window.showDirectoryPicker();
+    folderName = dirHandle.name;
+    try{ await dirHandle.requestPermission({mode:'readwrite'}); }catch(e){}
+    return true;
+  }catch(e){ dirHandle = null; folderName = null; return false; }
+}
+function fileNameForFormat(){ return settings.format === 'json' ? 'reflections.json' : 'reflections.md'; }
+function buildMarkdown(entries){
+  let out = '# Evening Reflections\n\n';
+  out += '## Settings (reference only — import a .json backup to restore these)\n\n';
+  out += '**Priorities**\n';
+  settings.priorities.forEach((p,i) => { out += `${i+1}. ${p.title || 'Untitled'}${p.desc ? ' — ' + p.desc : ''}\n`; });
+  out += '\n**Non-negotiables**\n';
+  settings.nonneg.forEach(i => { out += `- ${i.label}\n`; });
+  out += '\n**Bonus**\n';
+  settings.bonus.forEach(i => { out += `- ${i.label}\n`; });
+  out += '\n---\n\n';
+  entries.forEach(({date, data}) => {
+    const d = new Date(date + 'T00:00:00');
+    const label = d.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric', year:'numeric'});
+    out += `## ${date} — ${label}\n\n`;
+    out += `**Highlight:** ${data.highlight || '_(blank)_'}\n`;
+    out += `**Felt:** ${data.highlightFeel || '_(blank)_'}\n\n`;
+    out += `**Stressor / growth:** ${data.stressor || '_(blank)_'}\n`;
+    out += `**Felt:** ${data.stressorFeel || '_(blank)_'}\n\n`;
+    out += `**Non-negotiables**\n`;
+    settings.nonneg.forEach(i => {
+      const v = data.nonneg ? data.nonneg[i.key] : null;
+      out += `- [${v === true ? 'x' : ' '}] ${i.label}\n`;
+    });
+    out += `\n**Bonus**\n`;
+    settings.bonus.forEach(i => {
+      const v = data.bonus ? data.bonus[i.key] : null;
+      out += `- [${v === true ? 'x' : ' '}] ${i.label}\n`;
+    });
+    out += `\n---\n\n`;
+  });
+  return out;
+}
+function buildJSON(entries){
+  const obj = { settings: settings, entries: {} };
+  entries.forEach(({date,data}) => obj.entries[date] = data);
+  return JSON.stringify(obj, null, 2);
+}
+async function writeToFolderIfConnected(){
+  if(!dirHandle) return;
+  try{
+    const entries = await getAllEntries();
+    const content = settings.format === 'json' ? buildJSON(entries) : buildMarkdown(entries);
+    const handle = await dirHandle.getFileHandle(fileNameForFormat(), {create:true});
+    const writable = await handle.createWritable();
+    await writable.write(content);
+    await writable.close();
+  }catch(e){}
+}
+async function downloadExport(){
+  const entries = await getAllEntries();
+  const content = settings.format === 'json' ? buildJSON(entries) : buildMarkdown(entries);
+  const blob = new Blob([content], {type: settings.format === 'json' ? 'application/json' : 'text/markdown'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = fileNameForFormat();
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function isEntryShaped(obj){
+  return obj && typeof obj === 'object' && ('highlight' in obj || 'stressor' in obj || 'nonneg' in obj || 'bonus' in obj);
+}
+
+async function importFromParsed(parsed){
+  let importedSettings = null;
+  let entriesObj = null;
+
+  if(parsed && typeof parsed === 'object' && parsed.entries && typeof parsed.entries === 'object'){
+    // current backup shape: { settings, entries }
+    entriesObj = parsed.entries;
+    if(parsed.settings) importedSettings = parsed.settings;
+  } else if(parsed && typeof parsed === 'object'){
+    // legacy shape: flat { "YYYY-MM-DD": {...} }
+    entriesObj = parsed;
+  }
+
+  if(!entriesObj) throw new Error('No recognizable entries found in this file.');
+
+  if(importedSettings){
+    settings = Object.assign(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), importedSettings);
+    await saveSettings();
+  }
+
+  let count = 0;
+  for(const [dstr, data] of Object.entries(entriesObj)){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(dstr)) continue;
+    if(!isEntryShaped(data)) continue;
+    await safeSet(ENTRY_PREFIX + dstr, JSON.stringify(data));
+    count++;
+  }
+
+  syncEntryKeys();
+  await loadToday();
+  writeToFolderIfConnected();
+  return count;
+}
+
+window.triggerImport = function(){
+  document.getElementById('importFile').click();
+};
+window.handleImportFile = async function(evt){
+  const file = evt.target.files && evt.target.files[0];
+  evt.target.value = ''; // allow re-selecting the same file later
+  if(!file) return;
+  const statusEl = document.getElementById('importStatus');
+  try{
+    const text = await file.text();
+    const parsed = JSON.parse(text);
+    const count = await importFromParsed(parsed);
+    if(statusEl){ statusEl.textContent = `Imported ${count} entr${count === 1 ? 'y' : 'ies'}${parsed.settings ? ' and settings' : ''}.`; statusEl.style.color = '#4FD9C4'; }
+  }catch(e){
+    if(statusEl){ statusEl.textContent = 'Import failed — make sure this is a .json backup exported from this app.'; statusEl.style.color = '#E8895A'; }
+  }
+  renderSettings();
+};
+
+// ---------- Toggle helper ----------
+function ynButtons(groupKey, itemKey, value){
+  const yActive = value === true ? 'active-y' : '';
+  const nActive = value === false ? 'active-n' : '';
+  return `<div class="yn">
+    <button class="${yActive}" onclick="setYN('${groupKey}','${itemKey}',true)">Y</button>
+    <button class="${nActive}" onclick="setYN('${groupKey}','${itemKey}',false)">N</button>
+  </div>`;
+}
+window.setYN = function(groupKey, itemKey, val){
+  entry[groupKey][itemKey] = (entry[groupKey][itemKey] === val) ? null : val;
+  renderStep();
+};
+
+// ---------- Main rendering ----------
+function render(){
+  if(settingsOpen){ renderSettings(); return; }
+  if(historyOpen){ renderHistory(); return; }
+  renderStep();
+}
+
+function renderStep(){
+  updateChrome();
+  const card = document.getElementById('card');
+  const footer = document.getElementById('footerNote');
+  footer.textContent = '';
+
+  if(step === 0){
+    card.innerHTML = `
+      <h1>${hp}</h1>
+      <div class="field">
+        <textarea id="highlight" placeholder="A sentence or two...">${entry.highlight || ''}</textarea>
+      </div>
+      <div class="field">
+        <label>Describe how that made you feel — where did you feel it in your body?</label>
+        <textarea id="highlightFeel" placeholder="A sentence or two...">${entry.highlightFeel || ''}</textarea>
+      </div>
+    `;
+  } else if(step === 1){
+    card.innerHTML = `
+      <h1>${sp}</h1>
+      <div class="field">
+        <textarea id="stressor" placeholder="A sentence or two...">${entry.stressor || ''}</textarea>
+      </div>
+      <div class="field">
+        <label>Describe how that made you feel — where did you feel it in your body?</label>
+        <textarea id="stressorFeel" placeholder="A sentence or two...">${entry.stressorFeel || ''}</textarea>
+      </div>
+    `;
+  } else if(step === 2){
+    card.innerHTML = `
+      <h1>Your priorities</h1>
+      <p class="sub">A quick refocus before you close the day.</p>
+      <ul class="priorities">
+        ${settings.priorities.map((p,idx) => `
+          <li><span class="p-num">${idx+1}</span><span class="p-text"><b>${p.title || 'Untitled'}</b>${p.desc ? `<span>${p.desc}</span>` : ''}</span></li>
+        `).join('')}
+      </ul>
+    `;
+  } else if(step === 3){
+    card.innerHTML = `
+      <h1>Non-negotiables</h1>
+      <p class="sub">Did today include these?</p>
+      ${settings.nonneg.map(i => `<div class="toggle-row"><span>${i.label}</span>${ynButtons('nonneg', i.key, entry.nonneg[i.key])}</div>`).join('')}
+      ${settings.bonus.length ? `<div class="bonus-label">Bonus</div>` : ''}
+      ${settings.bonus.map(i => `<div class="toggle-row"><span>${i.label}</span>${ynButtons('bonus', i.key, entry.bonus[i.key])}</div>`).join('')}
+    `;
+  } else if(step === 4){
+    card.innerHTML = `
+      <div class="saved-check"><div class="mark">✓</div></div>
+      <h1 style="text-align:center;">Day closed out</h1>
+      <div class="summary-note">${entry.highlight ? entry.highlight : '<i>No highlight recorded.</i>'}</div>
+      <p class="sub" style="text-align:center;">Tap ✓ below to save and close.</p>
+    `;
+  }
+}
+
+function captureFields(){
+  if(step === 0){
+    const h = document.getElementById('highlight'); if(h) entry.highlight = h.value;
+    const hf = document.getElementById('highlightFeel'); if(hf) entry.highlightFeel = hf.value;
+  }
+  if(step === 1){
+    const s = document.getElementById('stressor'); if(s) entry.stressor = s.value;
+    const sf = document.getElementById('stressorFeel'); if(sf) entry.stressorFeel = sf.value;
+  }
+}
+window.next = async function(){
+  captureFields();
+  await saveTodayEntry();
+  if(step < totalSteps - 1){ step++; render(); }
+};
+window.back = function(){ captureFields(); if(step > 0){ step--; render(); } };
+window.finish = async function(){
+  await saveTodayEntry();
+  document.getElementById('card').innerHTML = `
+    <div class="saved-check"><div class="mark">✓</div></div>
+    <h1 style="text-align:center;">Rest well.</h1>
+    <p class="sub" style="text-align:center;">See you tomorrow evening.</p>
+  `;
+  document.getElementById('footerNote').textContent = dirHandle ? `Saved to "${folderName}"` : 'Saved on this device.';
+  hideBottomNav();
+};
+
+// ---------- Settings modal ----------
+function openSettings(){ settingsOpen = true; hideBottomNav(); render(); }
+function closeSettingsUI(){ settingsOpen = false; render(); }
+window.closeSettings = async function(){
+  await saveSettings();
+  syncEntryKeys();
+  writeToFolderIfConnected();
+  closeSettingsUI();
+};
+let settingsSaveTimer = null;
+function scheduleSettingsSave(){
+  clearTimeout(settingsSaveTimer);
+  settingsSaveTimer = setTimeout(() => {
+    saveSettings();
+    writeToFolderIfConnected();
+  }, 500);
+}
+
+window.setFormat = function(fmt){ settings.format = fmt; scheduleSettingsSave(); renderSettings(); };
+window.connectFolderClick = async function(){
+  const ok = await connectFolder();
+  renderSettings();
+  if(ok) writeToFolderIfConnected();
+};
+window.disconnectFolder = function(){ dirHandle = null; folderName = null; renderSettings(); };
+window.editListLabel = function(list, idx, field, value){
+  settings[list][idx][field] = value;
+  scheduleSettingsSave();
+};
+window.addListItem = function(list){
+  if(list === 'priorities'){ settings.priorities.push({title:'', desc:''}); }
+  else{ settings[list].push({key: newId(), label:''}); }
+  scheduleSettingsSave();
+  renderSettings();
+};
+window.removeListItem = function(list, idx){
+  settings[list].splice(idx,1);
+  scheduleSettingsSave();
+  renderSettings();
+};
+
+function renderSettings(){
+  const card = document.getElementById('card');
+  document.getElementById('stepLabel').textContent = 'Settings';
+  setAccentVars(0);
+
+  card.innerHTML = `
+    <h2>Settings</h2>
+
+    <div class="section-title">Storage</div>
+    <div class="storage-status">
+      ${folderSupported()
+        ? (dirHandle ? `Saving to folder: <b>${folderName}</b>` : 'No folder connected yet — entries are still saved on this device.')
+        : 'Folder access is not available in this browser. Entries are saved on this device; use Export to get a file.'}
+      <br>Settings save automatically. JSON export/import is the full backup (settings + entries); Markdown export is for reading only.
+    </div>
+    <div class="nav" style="justify-content:flex-start;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      ${folderSupported() ? (dirHandle
+        ? `<button class="btn-ghost" onclick="disconnectFolder()">Disconnect folder</button>`
+        : `<button class="btn-primary" onclick="connectFolderClick()">Choose folder</button>`) : ''}
+      <button class="btn-ghost" onclick="downloadExport()">Export now</button>
+    </div>
+
+    <div class="fmt-toggle">
+      <button class="${settings.format==='md' ? 'active':''}" onclick="setFormat('md')">Markdown (.md)</button>
+      <button class="${settings.format==='json' ? 'active':''}" onclick="setFormat('json')">JSON (.json)</button>
+    </div>
+
+    <div class="section-title">Priorities</div>
+    <div id="prioritiesList">
+      ${settings.priorities.map((pr, idx) => `
+        <div class="edit-row">
+          <input type="text" placeholder="Priority title" value="${escapeAttr(pr.title)}" oninput="editListLabel('priorities',${idx},'title',this.value)">
+          <input type="text" placeholder="Note (optional)" value="${escapeAttr(pr.desc)}" oninput="editListLabel('priorities',${idx},'desc',this.value)">
+          <button class="icon-btn" onclick="removeListItem('priorities',${idx})">✕</button>
+        </div>
+      `).join('')}
+    </div>
+    <button class="add-btn" onclick="addListItem('priorities')">+ Add priority</button>
+
+    <div class="section-title">Non-negotiables</div>
+    <div id="nonnegList">
+      ${settings.nonneg.map((it, idx) => `
+        <div class="edit-row">
+          <input type="text" placeholder="Non-negotiable" value="${escapeAttr(it.label)}" oninput="editListLabel('nonneg',${idx},'label',this.value)">
+          <button class="icon-btn" onclick="removeListItem('nonneg',${idx})">✕</button>
+        </div>
+      `).join('')}
+    </div>
+    <button class="add-btn" onclick="addListItem('nonneg')">+ Add non-negotiable</button>
+
+    <div class="section-title">Bonus</div>
+    <div id="bonusList">
+      ${settings.bonus.map((it, idx) => `
+        <div class="edit-row">
+          <input type="text" placeholder="Bonus item" value="${escapeAttr(it.label)}" oninput="editListLabel('bonus',${idx},'label',this.value)">
+          <button class="icon-btn" onclick="removeListItem('bonus',${idx})">✕</button>
+        </div>
+      `).join('')}
+    </div>
+    <button class="add-btn" onclick="addListItem('bonus')">+ Add bonus item</button>
+
+    <div class="section-title">Import</div>
+    <button class="btn-ghost" onclick="triggerImport()">Import backup</button>
+    <div id="importStatus" style="font-size:12px;color:var(--dim);min-height:16px;margin-top:6px;"></div>
+
+    <div class="modal-nav">
+      <button class="btn-primary" onclick="closeSettings()">Done</button>
+    </div>
+  `;
+}
+function escapeAttr(str){
+  return (str || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+}
+
+// ---------- History / calendar view ----------
+window.openHistory = async function(){
+  historyOpen = true;
+  hideBottomNav();
+  const now = new Date();
+  histYear = now.getFullYear();
+  histMonth = now.getMonth();
+  selectedDate = dateKey;
+  historyEntries = await getAllEntries();
+  render();
+};
+window.closeHistory = function(){ historyOpen = false; render(); };
+window.changeMonth = function(delta){
+  histMonth += delta;
+  if(histMonth < 0){ histMonth = 11; histYear--; }
+  if(histMonth > 11){ histMonth = 0; histYear++; }
+  renderHistory();
+};
+window.selectDay = function(dstr){
+  selectedDate = dstr;
+  const d = new Date(dstr + 'T00:00:00');
+  histYear = d.getFullYear();
+  histMonth = d.getMonth();
+  renderHistory();
+};
+
+function renderHistory(){
+  const card = document.getElementById('card');
+  document.getElementById('stepLabel').textContent = 'History';
+  setAccentVars(0);
+
+  const map = {};
+  historyEntries.forEach(e => map[e.date] = e.data);
+
+  const monthLabel = new Date(histYear, histMonth).toLocaleDateString(undefined,{month:'long', year:'numeric'});
+  const firstWeekday = new Date(histYear, histMonth, 1).getDay();
+  const daysInMonth = new Date(histYear, histMonth + 1, 0).getDate();
+
+  let dayCells = ['S','M','T','W','T','F','S'].map(d => `<div class="cal-dow">${d}</div>`).join('');
+  for(let i = 0; i < firstWeekday; i++){ dayCells += `<button class="cal-day empty"></button>`; }
+  for(let d = 1; d <= daysInMonth; d++){
+    const dstr = `${histYear}-${String(histMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const has = !!map[dstr];
+    const classes = ['cal-day'];
+    if(dstr === dateKey) classes.push('today');
+    if(dstr === selectedDate) classes.push('selected');
+    dayCells += `<button class="${classes.join(' ')}" onclick="selectDay('${dstr}')">${d}${has ? '<span class="dot"></span>' : ''}</button>`;
+  }
+
+  const selData = selectedDate ? map[selectedDate] : null;
+  const selLabel = selectedDate ? new Date(selectedDate + 'T00:00:00').toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'}) : '';
+  let detailHtml = '';
+  if(selData){
+    const nnTotal = settings.nonneg.length;
+    const nnDone = settings.nonneg.filter(i => selData.nonneg && selData.nonneg[i.key] === true).length;
+    detailHtml = `
+      <div class="day-detail">
+        <div class="dd-date">${selLabel}</div>
+        <div class="dd-row">
+          <div class="dd-label">Highlight</div>
+          <div class="dd-text">${selData.highlight ? escapeAttr(selData.highlight) : '<span class="dd-empty">No highlight recorded.</span>'}</div>
+        </div>
+        ${selData.stressor ? `<div class="dd-row"><div class="dd-label">Stressor / growth</div><div class="dd-text">${escapeAttr(selData.stressor)}</div></div>` : ''}
+        ${selData.stressorFeel ? `<div class="dd-row"><div class="dd-label">Felt</div><div class="dd-text">${escapeAttr(selData.stressorFeel)}</div></div>` : ''}
+        ${nnTotal ? `<div class="dd-tally">${nnDone}/${nnTotal} non-negotiables</div>` : ''}
+      </div>
+    `;
+  } else if(selectedDate){
+    detailHtml = `
+      <div class="day-detail">
+        <div class="dd-date">${selLabel}</div>
+        <div class="dd-empty">No entry for this day.</div>
+      </div>
+    `;
+  }
+
+  const listHtml = historyEntries.length
+    ? historyEntries.slice().reverse().map(e => {
+        const d = new Date(e.date + 'T00:00:00');
+        const label = d.toLocaleDateString(undefined,{month:'short', day:'numeric'});
+        const snippet = e.data.highlight ? escapeAttr(e.data.highlight) : 'No highlight recorded.';
+        return `<button class="entry-row" onclick="selectDay('${e.date}')">
+          <span class="entry-date">${label}</span>
+          <span class="entry-snippet">${snippet}</span>
+        </button>`;
+      }).join('')
+    : `<div class="entry-empty-note">No entries yet — come back after your first evening reflection.</div>`;
+
+  card.innerHTML = `
+    <button class="close-x" onclick="closeHistory()" aria-label="Close">✕</button>
+    <h2>History</h2>
+    <div class="cal-header">
+      <button onclick="changeMonth(-1)" aria-label="Previous month">‹</button>
+      <span class="cal-title">${monthLabel}</span>
+      <button onclick="changeMonth(1)" aria-label="Next month">›</button>
+    </div>
+    <div class="cal-grid">${dayCells}</div>
+    ${detailHtml}
+    <div class="section-title">All entries</div>
+    <div class="entry-list">${listHtml}</div>
+  `;
+}
+
+document.getElementById('gearBtn').addEventListener('click', openSettings);
+
+(async function init(){
+  document.getElementById('dateChip').textContent = dateLabel;
+  initFloatingShapes();
+  initSwipe();
+  await loadSettings();
+  await loadToday();
+  render();
+})();
+</script>
+</body>
+</html>
